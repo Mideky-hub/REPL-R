@@ -1,0 +1,45 @@
+{
+  "name": "repl-ay-monorepo",
+  "version": "1.0.0",
+  "description": "An observability & debugging platform for AI agentic systems",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "turbo": "^1.10.12",
+    "prettier": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^9.0.0",
+    "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mideky-hub/REPL-ay"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "observability",
+    "debugging",
+    "crewai",
+    "monitoring",
+    "saas"
+  ],
+  "author": "REPL;ay Team",
+  "license": "MIT"
+}

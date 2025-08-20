@@ -1,0 +1,125 @@
+services:
+  # ClickHouse for observability data
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.12
+    hostname: clickhouse
+    ports:
+      - "8123:8123"  # HTTP interface
+      - "9000:9000"  # Native interface
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse_schema_simple.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      CLICKHOUSE_DB: repl_ay
+      CLICKHOUSE_USER: repl_ay_user
+      CLICKHOUSE_PASSWORD: repl_ay_password
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    networks:
+      - repl-ay-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # PostgreSQL for application data
+  postgres:
+    image: postgres:16-alpine
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgresql_schema_dev.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_DB: repl_ay
+      POSTGRES_USER: repl_ay_user
+      POSTGRES_PASSWORD: repl_ay_password
+    networks:
+      - repl-ay-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U repl_ay_user -d repl_ay"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --appendfsync everysec
+    networks:
+      - repl-ay-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development services (optional - use docker-compose --profile dev up to start)
+  
+  # ClickHouse client for development
+  clickhouse-client:
+    image: clickhouse/clickhouse-client:23.12
+    depends_on:
+      - clickhouse
+    networks:
+      - repl-ay-network
+    profiles:
+      - dev
+    entrypoint: ["tail", "-f", "/dev/null"]  # Keep container running
+
+  # pgAdmin for PostgreSQL management
+  pgadmin:
+    image: dpage/pgadmin4:8
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@repl-ay.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - repl-ay-network
+    profiles:
+      - dev
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - repl-ay-network
+    profiles:
+      - dev
+
+volumes:
+  clickhouse_data:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  repl-ay-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
