@@ -7,20 +7,17 @@ import { AuthButton } from '@/components/AuthButton'
 import { AgentCrewStudio } from '@/components/AgentCrewStudio'
 import { PromptStudio } from '@/components/PromptStudio'
 import { WhitelistPage } from '@/components/WhitelistPage'
-import { PricingModal } from '@/components/PricingModal'
-import { NavigationMode, ChatMessage, ChatMode, ParallelChatInstance, UserTier } from '@/types'
+import { NavigationMode, ChatMessage, ChatMode, ParallelChatInstance } from '@/types'
 import { generateId } from '@/lib/utils'
 
 export default function Home() {
   // App state
   const [navigationMode, setNavigationMode] = useState<NavigationMode>('chat')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userTier, setUserTier] = useState<UserTier>('curious')
+  const [userTier, setUserTier] = useState('curious')
   const [messagesLeft, setMessagesLeft] = useState(15)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [showPricingModal, setShowPricingModal] = useState(false)
-  const [blockedFeature, setBlockedFeature] = useState<string>('')
   
   // Chat mode state
   const [chatMode, setChatMode] = useState<ChatMode>('normal')
@@ -35,7 +32,7 @@ export default function Home() {
     },
     {
       id: generateId(),
-      title: 'Chat 2', 
+      title: 'Chat 2',
       messages: [],
       prompt: '',
       deepResearch: false,
@@ -46,37 +43,14 @@ export default function Home() {
   // Mock authentication handlers
   const handleLogin = () => {
     setIsAuthenticated(true)
-    setUserTier('free') // Changed from 'developer' to 'free' to test premium features
-    setMessagesLeft(50) // Free tier gets 50 messages per day
+    setUserTier('developer') // Pro access for demo
+    setMessagesLeft(500) // Developer tier gets more messages
   }
 
   const handleLogout = () => {
     setIsAuthenticated(false)
     setUserTier('curious')
     setMessagesLeft(15)
-  }
-
-  const handleUpgrade = (feature: string) => {
-    setBlockedFeature(feature)
-    setShowPricingModal(true)
-  }
-
-  const handleSelectTier = (tier: UserTier) => {
-    setUserTier(tier)
-    setShowPricingModal(false)
-    
-    // Update messages based on tier
-    const tierLimits = {
-      curious: 15,
-      free: 50,
-      essential: -1, // unlimited
-      developer: -1,
-      founder: -1,
-      pro: -1
-    }
-    
-    const newLimit = tierLimits[tier]
-    setMessagesLeft(newLimit === -1 ? 999 : newLimit) // 999 represents unlimited for UI
   }
 
   // Mock message sending
@@ -182,27 +156,6 @@ export default function Home() {
     }
   }
 
-  // Navigation with premium feature detection
-  const handleNavigationChange = (mode: NavigationMode) => {
-    // Check if feature requires premium access
-    const premiumFeatures = {
-      'agent-crew-studio': 'Agent Crew Studio',
-      'prompt-studio': 'Advanced Prompt Studio'
-    }
-
-    if (mode === 'agent-crew-studio' && !['developer', 'founder', 'pro'].includes(userTier)) {
-      handleUpgrade(premiumFeatures[mode])
-      return
-    }
-
-    if (mode === 'prompt-studio' && userTier === 'curious') {
-      handleUpgrade(premiumFeatures[mode])
-      return
-    }
-
-    setNavigationMode(mode)
-  }
-
   // Render different views based on navigation mode
   const renderMainContent = () => {
     switch (navigationMode) {
@@ -223,14 +176,16 @@ export default function Home() {
             onLoginClick={handleLogin}
             messages={messages}
             isLoading={isLoading}
+            // Parallel chat props
             parallelInstances={parallelInstances}
             onParallelSend={handleParallelSend}
             onUpdateInstance={updateParallelInstance}
             onAddInstance={addParallelInstance}
             onRemoveInstance={removeParallelInstance}
             onModeChange={setChatMode}
-            userTier={userTier}
-            onUpgrade={handleUpgrade}
+          />
+        )
+            isLoading={isLoading}
           />
         )
       
@@ -239,7 +194,12 @@ export default function Home() {
           <PromptStudio
             isAuthenticated={isAuthenticated}
             userTier={userTier}
-            onUpgrade={() => handleUpgrade('Advanced Prompt Studio')}
+            onUpgrade={() => {
+              // In the real app, this would show auth modal for free users
+              if (!isAuthenticated) {
+                handleLogin()
+              }
+            }}
           />
         )
       
@@ -248,7 +208,10 @@ export default function Home() {
           <AgentCrewStudio
             isAuthenticated={isAuthenticated}
             userTier={userTier}
-            onUpgrade={() => handleUpgrade('Agent Crew Studio')}
+            onUpgrade={() => {
+              // In the real app, this would show pricing modal
+              alert('Upgrade to Developer Pack - €29/month')
+            }}
           />
         )
       
@@ -258,39 +221,30 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      {/* Background gradient is applied via CSS */}
+      
       {/* Navigation blur overlay */}
       <div className="nav-blur-overlay" />
       
       {/* Main Navigation */}
       <MainNavigation
         currentMode={navigationMode}
-        onModeChange={handleNavigationChange}
+        onModeChange={setNavigationMode}
         isAuthenticated={isAuthenticated}
         userTier={userTier}
       />
 
       {/* Auth Button */}
-      <div className="fixed top-6 right-6 z-50">
-        <AuthButton
-          isAuthenticated={isAuthenticated}
-          userEmail={isAuthenticated ? 'demo@example.com' : undefined}
-          onLogin={handleLogin}
-          onLogout={handleLogout}
-        />
-      </div>
+      <AuthButton
+        isAuthenticated={isAuthenticated}
+        userEmail={isAuthenticated ? 'demo@repl-ay.com' : undefined}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+      />
 
       {/* Main Content */}
       {renderMainContent()}
-
-      {/* Pricing Modal */}
-      <PricingModal
-        isOpen={showPricingModal}
-        onClose={() => setShowPricingModal(false)}
-        onSelectTier={handleSelectTier}
-        currentTier={userTier}
-        blockedFeature={blockedFeature}
-      />
     </div>
   )
 }

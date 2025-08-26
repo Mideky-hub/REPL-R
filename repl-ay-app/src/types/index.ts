@@ -62,5 +62,33 @@ export interface PricingTier {
 }
 
 // Navigation types
-export type NavigationMode = 'chat' | 'prompt-studio' | 'agent-crew-studio'
+export type NavigationMode = 'chat' | 'prompt-studio' | 'agent-crew-studio' | 'whitelist'
 export type ChatMode = 'normal' | 'parallel'
+export type ChatViewMode = 'fullscreen' | 'compact'
+
+// Parallel chat types
+export interface ParallelChatInstance {
+  id: string
+  title: string
+  messages: ChatMessage[]
+  prompt: string
+  deepResearch: boolean
+  isLoading: boolean
+}
+
+export interface ChatSettings {
+  mode: ChatMode
+  viewMode: ChatViewMode
+  parallelInstances: ParallelChatInstance[]
+  deepResearch: boolean
+}
+
+// Conversation history types
+export interface ConversationPreview {
+  id: string
+  title: string
+  preview: string
+  date: string
+  messageCount: number
+  lastMessageAt: Date
+}

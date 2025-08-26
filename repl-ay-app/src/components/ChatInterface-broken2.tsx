@@ -6,6 +6,27 @@ import { Send, Sparkles, User, Bot, LogIn, MessageCircle, Grid3X3, Plus, X, Sett
 import { ChatMessage, ChatMode, ParallelChatInstance } from '@/types'
 import { cn } from '@/lib/utils'
 import { LogoHero } from '@/components/Logo'
+                  }}
+                  className={cn(
+                    'p-3 rounded-full transition-all duration-200 relative',
+                    mode === 'parallel' 
+                      ? 'bg-white/30 text-enhanced-contrast shadow-sm' 
+                      : 'text-enhanced hover:bg-white/20'
+                  )}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Grid3X3 size={20} />
+                  {!['essential', 'developer', 'founder', 'pro'].includes(userTier) && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">+</span>
+                    </div>
+                  )}
+                </motion.button>framer-motion'
+import { Send, Sparkles, User, Bot, LogIn, MessageCircle, Grid3X3, Plus, X, Settings, Search } from 'lucide-react'
+import { ChatMessage, ChatMode, ParallelChatInstance } from '@/types'
+import { cn } from '@/lib/utils'
+import { LogoHero } from '@/components/Logo'
 
 interface ChatInterfaceProps {
   mode: ChatMode
@@ -76,15 +97,6 @@ export function ChatInterface({
     onParallelSend(instanceId, instanceInput.trim())
   }
 
-  const handleParallelModeClick = () => {
-    // Check if parallel mode requires premium
-    if (!['essential', 'developer', 'founder', 'pro'].includes(userTier) && onUpgrade) {
-      onUpgrade('Parallel Chat Mode')
-      return
-    }
-    onModeChange?.('parallel')
-  }
-
   return (
     <div className="min-h-screen pt-24 pb-8 px-8">
       <div className="max-w-6xl mx-auto">
@@ -112,9 +124,9 @@ export function ChatInterface({
                 </motion.button>
                 
                 <motion.button
-                  onClick={handleParallelModeClick}
+                  onClick={() => onModeChange('parallel')}
                   className={cn(
-                    'p-3 rounded-full transition-all duration-200 relative',
+                    'p-3 rounded-full transition-all duration-200',
                     mode === 'parallel' 
                       ? 'bg-white/30 text-enhanced-contrast shadow-sm' 
                       : 'text-enhanced hover:bg-white/20'
@@ -123,11 +135,6 @@ export function ChatInterface({
                   whileTap={{ scale: 0.95 }}
                 >
                   <Grid3X3 size={20} />
-                  {!['essential', 'developer', 'founder', 'pro'].includes(userTier) && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">+</span>
-                    </div>
-                  )}
                 </motion.button>
               </div>
             </motion.div>

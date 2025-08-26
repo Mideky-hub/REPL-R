@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { MessageCircle, Zap, Bot } from 'lucide-react'
+import { MessageCircle, Zap, Bot, Mail } from 'lucide-react'
 import { NavigationMode } from '@/types'
 import { cn } from '@/lib/utils'
+import { LogoNav } from '@/components/Logo'
 
 interface MainNavigationProps {
   currentMode: NavigationMode
@@ -43,6 +44,13 @@ export function MainNavigation({
       description: 'Build AI workflows',
       requiresAuth: true,
       requiresPaid: true
+    },
+    {
+      id: 'whitelist' as NavigationMode,
+      label: 'Whitelist',
+      icon: Mail,
+      description: 'Join our launch event',
+      requiresAuth: false
     }
   ]
 
@@ -64,6 +72,12 @@ export function MainNavigation({
     <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="glass rounded-full p-1 shadow-lg">
         <div className="flex items-center space-x-1">
+          {/* Logo */}
+          <div className="px-3 py-2 flex items-center">
+            <LogoNav />
+          </div>
+          
+          {/* Navigation Items */}
           {navigationItems.map((item) => {
             const Icon = item.icon
             const isActive = currentMode === item.id
