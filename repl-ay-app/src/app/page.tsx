@@ -1,26 +1,44 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { LogIn } from 'lucide-react'
 import { MainNavigation } from '@/components/MainNavigation'
 import { ChatInterface } from '@/components/ChatInterface'
-import { AuthButton } from '@/components/AuthButton'
 import { AgentCrewStudio } from '@/components/AgentCrewStudio'
 import { PromptStudio } from '@/components/PromptStudio'
 import { WhitelistPage } from '@/components/WhitelistPage'
-import { PricingModal } from '@/components/PricingModal'
+import { LazyModal } from '@/components/LazyModal'
+import UserProfileDropdown from '@/components/UserProfileDropdown'
 import { NavigationMode, ChatMessage, ChatMode, ParallelChatInstance, UserTier } from '@/types'
 import { generateId } from '@/lib/utils'
+import { useAuth } from '@/contexts/AuthContext'
+
+// Lazy load the heavy modals
+import dynamic from 'next/dynamic'
+
+const AuthManager = dynamic(() => import('@/components/AuthManager'), {
+  ssr: false,
+  loading: () => null
+})
+
+const PricingModal = dynamic(() => import('@/components/PricingModal'), {
+  ssr: false,
+  loading: () => null
+})
 
 export default function Home() {
+  const { user, isLoading, logout } = useAuth()
+  const isAuthenticated = !!user
+  
   // App state
   const [navigationMode, setNavigationMode] = useState<NavigationMode>('chat')
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userTier, setUserTier] = useState<UserTier>('curious')
   const [messagesLeft, setMessagesLeft] = useState(15)
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isMessageLoading, setIsMessageLoading] = useState(false)
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [blockedFeature, setBlockedFeature] = useState<string>('')
+  const [showAuthModal, setShowAuthModal] = useState(false)
   
   // Chat mode state
   const [chatMode, setChatMode] = useState<ChatMode>('normal')
@@ -43,41 +61,26 @@ export default function Home() {
     }
   ])
 
-  // Mock authentication handlers
-  const handleLogin = () => {
-    setIsAuthenticated(true)
-    setUserTier('free') // Changed from 'developer' to 'free' to test premium features
-    setMessagesLeft(50) // Free tier gets 50 messages per day
-  }
+  // Get user tier from auth context, default to 'curious' for non-authenticated users
+  const userTier = user?.tier || 'curious'
 
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    setUserTier('curious')
-    setMessagesLeft(15)
-  }
+  const handleLogin = useCallback(() => {
+    setShowAuthModal(true)
+  }, [])
 
-  const handleUpgrade = (feature: string) => {
+  const handleUpgrade = useCallback((feature: string) => {
     setBlockedFeature(feature)
     setShowPricingModal(true)
-  }
+  }, [])
 
-  const handleSelectTier = (tier: UserTier) => {
-    setUserTier(tier)
+  const handleSelectTier = useCallback((tier: UserTier) => {
+    // In a real app, this would trigger the upgrade process
+    // For now, just close the modal
     setShowPricingModal(false)
     
-    // Update messages based on tier
-    const tierLimits = {
-      curious: 15,
-      free: 50,
-      essential: -1, // unlimited
-      developer: -1,
-      founder: -1,
-      pro: -1
-    }
-    
-    const newLimit = tierLimits[tier]
-    setMessagesLeft(newLimit === -1 ? 999 : newLimit) // 999 represents unlimited for UI
-  }
+    // The actual tier change would happen after payment processing
+    console.log(`Selected tier: ${tier}`)
+  }, [])
 
   // Mock message sending
   const handleSendMessage = async (content: string) => {
@@ -94,7 +97,7 @@ export default function Home() {
     }
 
     setMessages(prev => [...prev, userMessage])
-    setIsLoading(true)
+    setIsMessageLoading(true)
 
     // Simulate AI response
     setTimeout(() => {
@@ -106,7 +109,7 @@ export default function Home() {
       }
       
       setMessages(prev => [...prev, aiResponse])
-      setIsLoading(false)
+      setIsMessageLoading(false)
       
       if (!isAuthenticated) {
         setMessagesLeft(prev => Math.max(0, prev - 1))
@@ -190,11 +193,13 @@ export default function Home() {
       'prompt-studio': 'Advanced Prompt Studio'
     }
 
-    if (mode === 'agent-crew-studio' && !['developer', 'founder', 'pro'].includes(userTier)) {
+    // Agent Crew Studio requires Developer tier or higher
+    if (mode === 'agent-crew-studio' && !['developer', 'founder'].includes(userTier)) {
       handleUpgrade(premiumFeatures[mode])
       return
     }
 
+    // Prompt Studio requires at least Free tier (not curious)
     if (mode === 'prompt-studio' && userTier === 'curious') {
       handleUpgrade(premiumFeatures[mode])
       return
@@ -203,8 +208,8 @@ export default function Home() {
     setNavigationMode(mode)
   }
 
-  // Render different views based on navigation mode
-  const renderMainContent = () => {
+  // Render different views based on navigation mode (memoized for performance)
+  const renderMainContent = useMemo(() => {
     switch (navigationMode) {
       case 'whitelist':
         return (
@@ -222,7 +227,7 @@ export default function Home() {
             onSendMessage={handleSendMessage}
             onLoginClick={handleLogin}
             messages={messages}
-            isLoading={isLoading}
+            isLoading={isMessageLoading}
             parallelInstances={parallelInstances}
             onParallelSend={handleParallelSend}
             onUpdateInstance={updateParallelInstance}
@@ -255,10 +260,29 @@ export default function Home() {
       default:
         return null
     }
-  }
+  }, [
+    navigationMode,
+    chatMode,
+    isAuthenticated,
+    messagesLeft,
+    handleSendMessage,
+    handleLogin,
+    messages,
+    isMessageLoading,
+    parallelInstances,
+    handleParallelSend,
+    updateParallelInstance,
+    addParallelInstance,
+    removeParallelInstance,
+    userTier,
+    handleUpgrade
+  ])
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      {/* Enhanced gradient background overlay for extra richness */}
+      <div className="fixed inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent pointer-events-none z-0"></div>
+      
       {/* Navigation blur overlay */}
       <div className="nav-blur-overlay" />
       
@@ -270,27 +294,51 @@ export default function Home() {
         userTier={userTier}
       />
 
-      {/* Auth Button */}
-      <div className="fixed top-6 right-6 z-50">
-        <AuthButton
-          isAuthenticated={isAuthenticated}
-          userEmail={isAuthenticated ? 'demo@example.com' : undefined}
-          onLogin={handleLogin}
-          onLogout={handleLogout}
+      {/* Auth Button / User Profile */}
+      {isAuthenticated ? (
+        <div className="fixed top-6 right-6 z-50">
+          <UserProfileDropdown />
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-6 right-6 z-50"
+        >
+          <motion.button
+            onClick={handleLogin}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="glass rounded-full px-8 py-3 transition-all duration-200 flex items-center space-x-2 text-enhanced hover:text-enhanced-contrast hover:bg-white/20 shadow-lg"
+          >
+            <LogIn size={20} className="text-enhanced" />
+            <span className="font-semibold tracking-wide">Sign Up / Log In</span>
+          </motion.button>
+        </motion.div>
+      )}
+
+      {/* Auth Manager - handles authentication modals */}
+      {showAuthModal && (
+        <AuthManager 
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onAuthComplete={() => setShowAuthModal(false)}
         />
-      </div>
+      )}
 
       {/* Main Content */}
-      {renderMainContent()}
+      {renderMainContent}
 
       {/* Pricing Modal */}
-      <PricingModal
-        isOpen={showPricingModal}
-        onClose={() => setShowPricingModal(false)}
-        onSelectTier={handleSelectTier}
-        currentTier={userTier}
-        blockedFeature={blockedFeature}
-      />
+      {showPricingModal && (
+        <PricingModal
+          isOpen={showPricingModal}
+          onClose={() => setShowPricingModal(false)}
+          onSelectTier={handleSelectTier}
+          currentTier={userTier}
+          blockedFeature={blockedFeature}
+        />
+      )}
     </div>
   )
 }

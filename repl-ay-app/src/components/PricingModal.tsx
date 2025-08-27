@@ -107,7 +107,7 @@ const pricingTiers = [
   }
 ]
 
-export function PricingModal({ 
+function PricingModal({ 
   isOpen, 
   onClose, 
   onSelectTier, 
@@ -289,3 +289,5 @@ export function PricingModal({
     </AnimatePresence>
   )
 }
+
+export default PricingModal

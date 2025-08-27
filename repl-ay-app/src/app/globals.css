@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 body {
-  background: linear-gradient(-45deg, #CCD5AE, #E9EDC9, #FEFAE0, #FAEDCD, #D4A373);
+  background: linear-gradient(-45deg, #CCD5AE, #E9EDC9, #FEFAE0, #FAEDCD, #D4A373, #CCD5AE);
   background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  animation: gradient 20s ease infinite;
   color: #4A4A4A;
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 @keyframes gradient {
@@ -95,4 +96,17 @@ body {
     0 0 8px rgba(254, 250, 224, 0.4);
   color: #1A1A1A;
   font-weight: 500;
+}
+
+/* Gradient button utilities */
+.gradient-button {
+  background: linear-gradient(135deg, #D4A373 0%, #FAEDCD 50%, #CCD5AE 100%);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-button:hover {
+  background: linear-gradient(135deg, #C89968 0%, #F5E8C2 50%, #C1CA9F 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(212, 163, 115, 0.3);
 }

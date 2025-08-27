@@ -69,8 +69,14 @@ export function MainNavigation({
   }
 
   return (
-    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="glass rounded-full p-1 shadow-lg">
+    <>
+      {/* Blur overlay for content scrolling under navigation */}
+      <div className="fixed top-0 left-0 w-full h-24 z-40 pointer-events-none">
+        <div className="absolute inset-0 backdrop-blur-md bg-gradient-to-b from-white/5 via-white/2 to-transparent"></div>
+      </div>
+      
+      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="glass rounded-full p-1 shadow-lg backdrop-blur-lg bg-white/10 border border-white/20">
         <div className="flex items-center space-x-1">
           {/* Logo */}
           <div className="px-3 py-2 flex items-center">
@@ -99,6 +105,7 @@ export function MainNavigation({
                 )}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                disabled={isDisabled}
               >
                 {isActive && (
                   <motion.div
@@ -125,19 +132,20 @@ export function MainNavigation({
             )
           })}
         </div>
+        
+        {/* Hover tooltip */}
+        {hoveredMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-orange-900/80 text-cream-100 text-xs rounded-lg whitespace-nowrap"
+          >
+            {navigationItems.find(item => item.id === hoveredMode)?.description}
+          </motion.div>
+        )}
       </div>
-      
-      {/* Hover tooltip */}
-      {hoveredMode && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-orange-900/80 text-cream-100 text-xs rounded-lg whitespace-nowrap"
-        >
-          {navigationItems.find(item => item.id === hoveredMode)?.description}
-        </motion.div>
-      )}
     </div>
+    </>
   )
 }
