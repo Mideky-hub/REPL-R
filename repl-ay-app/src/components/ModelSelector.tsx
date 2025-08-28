@@ -195,41 +195,33 @@ export function ModelSelector({
             ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 opacity-90'
             : 'border-gray-200 hover:border-gray-300'
         )}
-        whileHover={{ scale: needsApiKey ? 1.0 : 1.01 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+        whileHover={{ scale: needsApiKey ? 1.0 : 1.005 }}
+        transition={{ type: 'tween', duration: 0.15 }}
       >
         {/* Main Model Info */}
-        <div className="p-5">
+        <div className="p-4">
           {/* Header with Icon and Status */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <span className={cn("text-3xl", needsApiKey && "grayscale opacity-50")}>{model.icon}</span>
+                <span className={cn("text-2xl", needsApiKey && "grayscale opacity-50")}>{model.icon}</span>
                 {isSelected && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center"
-                  >
-                    <Check size={10} className="text-white" />
-                  </motion.div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+                    <Check size={8} className="text-white" />
+                  </div>
                 )}
                 {needsApiKey && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center"
-                  >
-                    <AlertCircle size={10} className="text-white" />
-                  </motion.div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                    <AlertCircle size={8} className="text-white" />
+                  </div>
                 )}
               </div>
               <div>
-                <h3 className={cn("font-bold text-lg flex items-center gap-2", 
+                <h3 className={cn("font-bold text-base flex items-center gap-2", 
                   needsApiKey ? "text-red-600" : "text-gray-800")}>
                   {model.name}
-                  {model.id.includes('gpt-4o') || model.id.includes('claude-3-5') ? (
-                    <Star size={14} className="text-amber-500" />
+                  {model.id.includes('gpt-5') || model.id.includes('claude-opus-4') ? (
+                    <Star size={12} className="text-amber-500" />
                   ) : null}
                   {needsApiKey && (
                     <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
@@ -239,14 +231,14 @@ export function ModelSelector({
                 </h3>
                 <div className="flex items-center space-x-2 mt-1">
                   <span className={cn(
-                    'text-sm font-medium px-2 py-0.5 rounded-full border',
+                    'text-xs font-medium px-2 py-0.5 rounded-full border',
                     PROVIDER_COLORS[model.provider as keyof typeof PROVIDER_COLORS] || 'text-enhanced bg-white/10 border-white/20'
                   )}>
                     {model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}
                   </span>
                   {model.isLocal && (
                     <div className="flex items-center space-x-1 text-green-400 text-xs">
-                      <Home size={12} />
+                      <Home size={10} />
                       <span>Local</span>
                     </div>
                   )}
@@ -258,44 +250,42 @@ export function ModelSelector({
               {/* Status Indicator */}
               <div className="flex items-center space-x-1">
                 {needsApiKey && (
-                  <AlertCircle size={16} className="text-red-400" />
+                  <AlertCircle size={14} className="text-red-400" />
                 )}
                 {status === 'checking' && (
-                  <Loader2 size={16} className="text-enhanced animate-spin" />
+                  <Loader2 size={14} className="text-enhanced animate-spin" />
                 )}
                 {status === 'unavailable' && (
-                  <WifiOff size={16} className="text-red-400" />
+                  <WifiOff size={14} className="text-red-400" />
                 )}
                 {status === 'available' && (
-                  <Wifi size={16} className="text-green-400" />
+                  <Wifi size={14} className="text-green-400" />
                 )}
                 {!status && !needsApiKey && model.isLocal && (
-                  <Home size={16} className="text-blue-400" />
+                  <Home size={14} className="text-blue-400" />
                 )}
               </div>
               
               {/* Details Toggle */}
-              <motion.button
+              <button
                 onClick={(e) => {
                   e.stopPropagation()
                   toggleDetails(model.id)
                 }}
                 className="p-1 rounded-lg hover:bg-white/10 transition-colors"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
               >
-                <Info size={16} className="text-enhanced opacity-60" />
-              </motion.button>
+                <Info size={14} className="text-enhanced opacity-60" />
+              </button>
             </div>
           </div>
 
           {/* Category and Speed */}
           <div className="flex items-center justify-between mb-3">
             <div className={cn(
-              'flex items-center space-x-2 px-3 py-1.5 rounded-xl text-sm font-medium border',
+              'flex items-center space-x-2 px-2 py-1 rounded-lg text-xs font-medium border',
               CATEGORY_COLORS[model.category]
             )}>
-              <CategoryIcon size={14} />
+              <CategoryIcon size={12} />
               <span>{model.category.charAt(0).toUpperCase() + model.category.slice(1)}</span>
             </div>
             
@@ -308,7 +298,7 @@ export function ModelSelector({
                   <div
                     key={i}
                     className={cn(
-                      'w-1 h-3 rounded-full',
+                      'w-1 h-2 rounded-full',
                       i < speedInfo.bars 
                         ? speedInfo.color.replace('text-', 'bg-')
                         : 'bg-white/20'
@@ -320,27 +310,27 @@ export function ModelSelector({
           </div>
           
           {/* Description */}
-          <p className={cn("text-sm mb-4 line-clamp-2",
+          <p className={cn("text-sm mb-3 line-clamp-2",
             needsApiKey ? "text-red-500" : "text-gray-600")}>
             {model.description}
           </p>
           
           {/* Quick Stats */}
-          <div className={cn("flex items-center justify-between text-xs mb-4",
+          <div className={cn("flex items-center justify-between text-xs mb-3",
             needsApiKey ? "text-red-400" : "text-gray-500")}>
             <div className="flex items-center space-x-1">
-              <Cpu size={12} />
+              <Cpu size={10} />
               <span>{model.maxTokens.toLocaleString()} tokens</span>
             </div>
             <div className="flex items-center space-x-1">
               {model.isLocal ? (
                 <>
-                  <Home size={12} />
+                  <Home size={10} />
                   <span className="text-green-500 font-medium">Free</span>
                 </>
               ) : (
                 <>
-                  <DollarSign size={12} />
+                  <DollarSign size={10} />
                   <span>${model.costPer1kTokens}/1k</span>
                 </>
               )}
@@ -352,108 +342,80 @@ export function ModelSelector({
             {model.supportsStreaming && (
               <div className={cn("flex items-center space-x-1",
                 needsApiKey ? "text-red-400" : "text-blue-500")}>
-                <Activity size={12} />
+                <Activity size={10} />
                 <span>Streaming</span>
               </div>
             )}
             {model.maxTokens > 4000 && (
               <div className={cn("flex items-center space-x-1",
                 needsApiKey ? "text-red-400" : "text-purple-500")}>
-                <Clock size={12} />
+                <Clock size={10} />
                 <span>Long Context</span>
               </div>
             )}
           </div>
 
-          {/* Expanded Details */}
-          <AnimatePresence>
-            {detailsVisible && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="mt-4 pt-4 border-t border-white/10 space-y-3"
-              >
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <div className="text-enhanced opacity-60 mb-1">Max Tokens</div>
-                    <div className="text-enhanced-contrast font-medium">{model.maxTokens.toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <div className="text-enhanced opacity-60 mb-1">Cost per 1k</div>
-                    <div className="text-enhanced-contrast font-medium">
-                      {model.isLocal ? 'Free' : `$${model.costPer1kTokens}`}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-enhanced opacity-60 mb-1">Provider</div>
-                    <div className="text-enhanced-contrast font-medium capitalize">{model.provider}</div>
-                  </div>
-                  <div>
-                    <div className="text-enhanced opacity-60 mb-1">Type</div>
-                    <div className="text-enhanced-contrast font-medium">
-                      {model.isLocal ? 'Local' : 'Cloud'}
-                    </div>
+          {/* Expanded Details - Simplified for performance */}
+          {detailsVisible && (
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <div className="text-enhanced opacity-60 mb-1">Max Tokens</div>
+                  <div className="text-enhanced-contrast font-medium">{model.maxTokens.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div className="text-enhanced opacity-60 mb-1">Cost per 1k</div>
+                  <div className="text-enhanced-contrast font-medium">
+                    {model.isLocal ? 'Free' : `$${model.costPer1kTokens}`}
                   </div>
                 </div>
-                
-                {needsApiKey && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                    <div className="flex items-center space-x-2 text-red-300 text-sm font-medium mb-2">
-                      <AlertCircle size={16} />
-                      <span>API Key Required</span>
-                    </div>
-                    <p className="text-red-200 text-xs">
-                      This model requires a valid API key for {model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}. 
-                      Add your API key to the environment variables to use this model.
-                    </p>
-                  </div>
-                )}
-                
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {model.supportsStreaming && (
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">
-                      Streaming Support
-                    </span>
-                  )}
-                  {!model.requiresApiKey && (
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">
-                      No API Key Required
-                    </span>
-                  )}
-                  {model.category === 'coding' && (
-                    <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs">
-                      Code Optimized
-                    </span>
-                  )}
+                <div>
+                  <div className="text-enhanced opacity-60 mb-1">Provider</div>
+                  <div className="text-enhanced-contrast font-medium capitalize">{model.provider}</div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <div>
+                  <div className="text-enhanced opacity-60 mb-1">Type</div>
+                  <div className="text-enhanced-contrast font-medium">
+                    {model.isLocal ? 'Local' : 'Cloud'}
+                  </div>
+                </div>
+              </div>
+              
+              {needsApiKey && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                  <div className="flex items-center space-x-2 text-red-300 text-sm font-medium mb-2">
+                    <AlertCircle size={14} />
+                    <span>API Key Required</span>
+                  </div>
+                  <p className="text-red-200 text-xs">
+                    This model requires a valid API key for {model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}. 
+                    Add your API key to the environment variables to use this model.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Select Button */}
-        <motion.button
+        <button
           onClick={() => handleModelSelect(model.id)}
           disabled={isLoading || status === 'unavailable' || needsApiKey}
           className={cn(
-            'w-full p-4 transition-all font-semibold border-t',
+            'w-full p-3 transition-all font-semibold border-t text-sm',
             isSelected
               ? 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border-amber-200'
               : status === 'unavailable' || needsApiKey
               ? 'bg-red-50 text-red-500 cursor-not-allowed border-red-200'
               : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200'
           )}
-          whileHover={!isLoading && status !== 'unavailable' && !needsApiKey ? { y: -1 } : undefined}
-          whileTap={!isLoading && status !== 'unavailable' && !needsApiKey ? { scale: 0.99 } : undefined}
         >
           {isLoading ? 'Switching...' : 
            isSelected ? 'Currently Selected' :
            needsApiKey ? 'API Key Required' :
            status === 'unavailable' ? 'Unavailable' :
            'Select Model'}
-        </motion.button>
+        </button>
       </motion.div>
     )
   }
@@ -527,10 +489,10 @@ export function ModelSelector({
             
             {/* Modal Content */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.98, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              exit={{ opacity: 0, scale: 0.98, y: 10 }}
+              transition={{ type: 'tween', duration: 0.2 }}
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-7xl max-h-[95vh] overflow-hidden"
             >
               <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl">
@@ -586,65 +548,57 @@ export function ModelSelector({
                   {/* Filter Buttons */}
                   <div className="flex flex-wrap gap-3 mt-6">
                     {/* Provider Filters */}
-                    <motion.button
+                    <button
                       onClick={() => setSelectedProvider('all')}
                       className={cn(
-                        'px-4 py-2 rounded-full text-sm font-medium transition-all border',
+                        'px-4 py-2 rounded-full text-sm font-medium transition-all border hover:scale-105',
                         selectedProvider === 'all'
                           ? 'bg-amber-100 text-amber-700 border-amber-300'
                           : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'
                       )}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
                     >
                       <Globe size={16} className="inline mr-2" />
                       All Providers
-                    </motion.button>
+                    </button>
                     
-                    {MODEL_PROVIDERS.map(provider => {
-                      const hasModels = getProviderModels(provider.id).length > 0
-                      if (!hasModels) return null
-                      
-                      return (
-                        <motion.button
-                          key={provider.id}
-                          onClick={() => setSelectedProvider(provider.id)}
-                          className={cn(
-                            'px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center space-x-2 border',
-                            selectedProvider === provider.id
-                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                              : 'bg-white/10 text-enhanced hover:bg-white/20 border-white/20'
-                          )}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <span>{provider.icon}</span>
-                          <span>{provider.name}</span>
-                        </motion.button>
-                      )
-                    })}
-
-                    {/* Category Filters */}
+                      {MODEL_PROVIDERS.map(provider => {
+                        const hasModels = getProviderModels(provider.id).length > 0
+                        if (!hasModels) return null
+                        
+                        return (
+                          <button
+                            key={provider.id}
+                            onClick={() => setSelectedProvider(provider.id)}
+                            className={cn(
+                              'px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center space-x-2 border hover:scale-105',
+                              selectedProvider === provider.id
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                : 'bg-white/10 text-enhanced hover:bg-white/20 border-white/20'
+                            )}
+                          >
+                            <span>{provider.icon}</span>
+                            <span>{provider.name}</span>
+                          </button>
+                        )
+                      })}                    {/* Category Filters */}
                     <div className="w-full border-t border-white/10 pt-4 mt-2">
                       <div className="flex flex-wrap gap-2">
                         {['all', 'fast', 'balanced', 'creative', 'coding', 'reasoning'].map(category => {
                           const Icon = category === 'all' ? Filter : CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS]
                           return (
-                            <motion.button
+                            <button
                               key={category}
                               onClick={() => setSelectedCategory(category)}
                               className={cn(
-                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 border',
+                                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 border hover:scale-105',
                                 selectedCategory === category
                                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                                   : 'bg-white/5 text-enhanced hover:bg-white/10 border-white/10'
                               )}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
                             >
                               <Icon size={12} />
                               <span>{category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}</span>
-                            </motion.button>
+                            </button>
                           )
                         })}
                       </div>
@@ -655,31 +609,16 @@ export function ModelSelector({
                 {/* Models Grid */}
                 <div className="p-8 max-h-[70vh] overflow-y-auto bg-gray-50">
                   {filteredModels.length > 0 ? (
-                    <motion.div
-                      layout
-                      className="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
-                    >
-                      <AnimatePresence>
-                        {filteredModels.map((model, index) => (
-                          <motion.div
-                            key={model.id}
-                            layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ delay: index * 0.05 }}
-                          >
-                            {renderModelCard(model)}
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </motion.div>
+                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                      {filteredModels.map((model, index) => (
+                        <div key={model.id}>
+                          {renderModelCard(model)}
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="text-center py-16">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
+                      <div>
                         <Search size={64} className="mx-auto text-enhanced opacity-30 mb-6" />
                         <h3 className="text-2xl font-bold text-enhanced-contrast mb-4">
                           No Models Found
@@ -687,19 +626,17 @@ export function ModelSelector({
                         <p className="text-enhanced opacity-80 mb-6 max-w-md mx-auto">
                           No models match your current filters. Try adjusting your search or filters.
                         </p>
-                        <motion.button
+                        <button
                           onClick={() => {
                             setSearchQuery('')
                             setSelectedProvider('all')
                             setSelectedCategory('all')
                           }}
                           className="px-6 py-3 bg-amber-500/20 text-amber-300 rounded-xl border border-amber-500/40 hover:bg-amber-500/30 transition-colors"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
                         >
                           Clear All Filters
-                        </motion.button>
-                      </motion.div>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
