@@ -187,13 +187,13 @@ export function ModelSelector({
         key={model.id}
         layout
         className={cn(
-          'rounded-2xl border transition-all group relative overflow-hidden',
-          'hover:shadow-lg hover:shadow-amber-500/10',
+          'rounded-2xl border transition-all group relative overflow-hidden bg-white shadow-md',
+          'hover:shadow-lg hover:shadow-amber-500/20',
           isSelected 
-            ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/40 shadow-lg shadow-amber-500/20' 
+            ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300 shadow-lg shadow-amber-500/20' 
             : needsApiKey
-            ? 'bg-gradient-to-br from-red-500/10 to-red-600/10 border-red-500/20 opacity-75'
-            : 'bg-gradient-to-br from-white/5 to-white/10 border-white/10 hover:border-white/30'
+            ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 opacity-90'
+            : 'border-gray-200 hover:border-gray-300'
         )}
         whileHover={{ scale: needsApiKey ? 1.0 : 1.01 }}
         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
@@ -226,13 +226,13 @@ export function ModelSelector({
               </div>
               <div>
                 <h3 className={cn("font-bold text-lg flex items-center gap-2", 
-                  needsApiKey ? "text-red-300" : "text-enhanced-contrast")}>
+                  needsApiKey ? "text-red-600" : "text-gray-800")}>
                   {model.name}
                   {model.id.includes('gpt-4o') || model.id.includes('claude-3-5') ? (
-                    <Star size={14} className="text-amber-400" />
+                    <Star size={14} className="text-amber-500" />
                   ) : null}
                   {needsApiKey && (
-                    <span className="text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
                       API Key Required
                     </span>
                   )}
@@ -321,13 +321,13 @@ export function ModelSelector({
           
           {/* Description */}
           <p className={cn("text-sm mb-4 line-clamp-2",
-            needsApiKey ? "text-red-200 opacity-70" : "text-enhanced opacity-80")}>
+            needsApiKey ? "text-red-500" : "text-gray-600")}>
             {model.description}
           </p>
           
           {/* Quick Stats */}
           <div className={cn("flex items-center justify-between text-xs mb-4",
-            needsApiKey ? "text-red-200 opacity-60" : "text-enhanced opacity-70")}>
+            needsApiKey ? "text-red-400" : "text-gray-500")}>
             <div className="flex items-center space-x-1">
               <Cpu size={12} />
               <span>{model.maxTokens.toLocaleString()} tokens</span>
@@ -336,7 +336,7 @@ export function ModelSelector({
               {model.isLocal ? (
                 <>
                   <Home size={12} />
-                  <span className="text-green-400 font-medium">Free</span>
+                  <span className="text-green-500 font-medium">Free</span>
                 </>
               ) : (
                 <>
@@ -351,14 +351,14 @@ export function ModelSelector({
           <div className="flex items-center space-x-3 text-xs">
             {model.supportsStreaming && (
               <div className={cn("flex items-center space-x-1",
-                needsApiKey ? "text-red-300" : "text-blue-400")}>
+                needsApiKey ? "text-red-400" : "text-blue-500")}>
                 <Activity size={12} />
                 <span>Streaming</span>
               </div>
             )}
             {model.maxTokens > 4000 && (
               <div className={cn("flex items-center space-x-1",
-                needsApiKey ? "text-red-300" : "text-purple-400")}>
+                needsApiKey ? "text-red-400" : "text-purple-500")}>
                 <Clock size={12} />
                 <span>Long Context</span>
               </div>
@@ -440,10 +440,10 @@ export function ModelSelector({
           className={cn(
             'w-full p-4 transition-all font-semibold border-t',
             isSelected
-              ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/20 text-amber-200 border-amber-500/30'
+              ? 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border-amber-200'
               : status === 'unavailable' || needsApiKey
-              ? 'bg-red-500/10 text-red-400 cursor-not-allowed border-red-500/20'
-              : 'bg-white/5 text-enhanced-contrast hover:bg-white/10 border-white/10'
+              ? 'bg-red-50 text-red-500 cursor-not-allowed border-red-200'
+              : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-200'
           )}
           whileHover={!isLoading && status !== 'unavailable' && !needsApiKey ? { y: -1 } : undefined}
           whileTap={!isLoading && status !== 'unavailable' && !needsApiKey ? { scale: 0.99 } : undefined}
@@ -521,7 +521,7 @@ export function ModelSelector({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-white/60 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
               onClick={() => setIsOpen(false)}
             />
             
@@ -531,28 +531,28 @@ export function ModelSelector({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-6xl max-h-[90vh] overflow-hidden"
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-7xl max-h-[95vh] overflow-hidden"
             >
-              <div className="glass rounded-3xl border border-white/20 shadow-2xl backdrop-blur-xl">
+              <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl">
                 {/* Header */}
-                <div className="p-8 border-b border-white/10 bg-gradient-to-r from-white/5 to-white/10">
+                <div className="p-8 border-b border-white/20 bg-white/90">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-3xl font-bold text-enhanced-contrast mb-2 flex items-center gap-3">
-                        <Brain className="text-amber-400" />
+                      <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                        <Brain className="text-amber-600" />
                         Choose Your AI Model
                       </h2>
-                      <p className="text-enhanced opacity-80">
+                      <p className="text-gray-600">
                         Select the perfect AI model for your task - from lightning-fast responses to deep reasoning
                       </p>
                     </div>
                     <motion.button
                       onClick={() => setIsOpen(false)}
-                      className="p-3 rounded-full glass hover:bg-white/20 transition-colors"
+                      className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <X size={24} className="text-enhanced" />
+                      <X size={24} className="text-gray-600" />
                     </motion.button>
                   </div>
                   
@@ -560,13 +560,13 @@ export function ModelSelector({
                   <div className="flex flex-col lg:flex-row gap-4">
                     {/* Search */}
                     <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-enhanced opacity-50" size={20} />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                       <input
                         type="text"
                         placeholder="Search models..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-black/20 border border-white/20 rounded-xl text-enhanced-contrast placeholder-white/40 focus:outline-none focus:border-amber-500/50 transition-colors"
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-amber-500 transition-colors"
                       />
                     </div>
                     
@@ -574,7 +574,7 @@ export function ModelSelector({
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as any)}
-                      className="px-4 py-3 bg-black/20 border border-white/20 rounded-xl text-enhanced-contrast focus:outline-none focus:border-amber-500/50 transition-colors"
+                      className="px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:border-amber-500 transition-colors"
                     >
                       <option value="popularity">Most Popular</option>
                       <option value="name">Name A-Z</option>
@@ -591,8 +591,8 @@ export function ModelSelector({
                       className={cn(
                         'px-4 py-2 rounded-full text-sm font-medium transition-all border',
                         selectedProvider === 'all'
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                          : 'bg-white/10 text-enhanced hover:bg-white/20 border-white/20'
+                          ? 'bg-amber-100 text-amber-700 border-amber-300'
+                          : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'
                       )}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -653,7 +653,7 @@ export function ModelSelector({
                 </div>
 
                 {/* Models Grid */}
-                <div className="p-8 max-h-[60vh] overflow-y-auto">
+                <div className="p-8 max-h-[70vh] overflow-y-auto bg-gray-50">
                   {filteredModels.length > 0 ? (
                     <motion.div
                       layout
@@ -705,18 +705,18 @@ export function ModelSelector({
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-white/10 bg-gradient-to-r from-black/20 to-black/10">
+                <div className="p-6 border-t border-gray-200 bg-white">
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-4 text-enhanced opacity-60">
+                    <div className="flex items-center space-x-4 text-gray-500">
                       <span>{filteredModels.length} models available</span>
                       <span>•</span>
                       <span>Real-time status checking</span>
                     </div>
                     {showProviderInfo && (
-                      <div className="text-enhanced opacity-60">
+                      <div className="text-gray-500">
                         <span>Need help? Check our </span>
                         <motion.button
-                          className="text-amber-400 hover:text-amber-300 underline"
+                          className="text-amber-600 hover:text-amber-700 underline"
                           whileHover={{ scale: 1.05 }}
                         >
                           model guide

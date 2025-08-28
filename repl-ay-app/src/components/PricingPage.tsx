@@ -1,15 +1,18 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Zap, Bot, Crown, Star } from 'lucide-react'
+import { Check, Zap, Bot, Crown, Star, Loader2, CreditCard } from 'lucide-react'
 import { PricingTier } from '@/types'
 import { cn } from '@/lib/utils'
+import { createCheckoutSession, redirectToCheckout } from '@/lib/stripe'
 
 interface PricingPageProps {
   currentTier: string
   highlightTier?: string
-  onSelectPlan: (tierName: string) => void
+  onSelectPlan?: (tierName: string) => void // Make optional for backward compatibility
+  userId?: string
+  userEmail?: string
 }
 
 const pricingTiers: PricingTier[] = [
@@ -66,7 +69,46 @@ const pricingTiers: PricingTier[] = [
   }
 ]
 
-export function PricingPage({ currentTier, highlightTier = 'developer', onSelectPlan }: PricingPageProps) {
+export function PricingPage({ currentTier, highlightTier = 'developer', onSelectPlan, userId, userEmail }: PricingPageProps) {
+  const [loading, setLoading] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSelectPlan = async (tierName: string) => {
+    // Convert tier name to plan ID
+    const planIdMap: Record<string, string> = {
+      'Essential Pack': 'essential',
+      'Developer Pack': 'developer', 
+      'Founder Pack': 'founder'
+    }
+    
+    const planId = planIdMap[tierName]
+    
+    if (!planId) {
+      // Fallback to legacy callback
+      onSelectPlan?.(tierName)
+      return
+    }
+
+    if (!userId || !userEmail) {
+      setError('Please sign in to upgrade your account')
+      return
+    }
+
+    setLoading(planId)
+    setError(null)
+
+    try {
+      const session = await createCheckoutSession(planId, userId, userEmail)
+      await redirectToCheckout(session.sessionId)
+    } catch (err) {
+      console.error('Upgrade error:', err)
+      setError('Failed to start upgrade process. Please try again.')
+      // Fallback to legacy callback
+      onSelectPlan?.(tierName)
+    } finally {
+      setLoading(null)
+    }
+  }
   const getIcon = (tierName: string) => {
     switch (tierName.toLowerCase()) {
       case 'essential pack':
@@ -106,12 +148,29 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
           </p>
         </motion.div>
 
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-100 border border-red-200 rounded-xl p-4 mb-8 max-w-2xl mx-auto"
+          >
+            <p className="text-red-800 text-center">{error}</p>
+          </motion.div>
+        )}
+
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {pricingTiers.map((tier, index) => {
             const Icon = getIcon(tier.name)
             const isHighlighted = highlightTier === tier.name.toLowerCase().replace(' pack', '')
             const isCurrent = isCurrentTier(tier.name)
+            const planIdMap: Record<string, string> = {
+              'Essential Pack': 'essential',
+              'Developer Pack': 'developer', 
+              'Founder Pack': 'founder'
+            }
+            const isLoading = loading === planIdMap[tier.name]
 
             return (
               <motion.div
@@ -173,12 +232,12 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
                 </ul>
 
                 <motion.button
-                  onClick={() => onSelectPlan(tier.name)}
-                  disabled={isCurrent}
-                  whileHover={!isCurrent ? { scale: 1.02 } : {}}
-                  whileTap={!isCurrent ? { scale: 0.98 } : {}}
+                  onClick={() => handleSelectPlan(tier.name)}
+                  disabled={isCurrent || isLoading}
+                  whileHover={!isCurrent && !isLoading ? { scale: 1.02 } : {}}
+                  whileTap={!isCurrent && !isLoading ? { scale: 0.98 } : {}}
                   className={cn(
-                    "w-full py-3 px-6 rounded-xl font-semibold transition-all duration-200 shadow-lg",
+                    "w-full py-3 px-6 rounded-xl font-semibold transition-all duration-200 shadow-lg flex items-center justify-center space-x-2",
                     isCurrent
                       ? "bg-green-100 text-green-700 cursor-not-allowed"
                       : isHighlighted
@@ -186,7 +245,22 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
                         : "bg-white/50 text-enhanced-contrast hover:bg-white/70 border border-green-200/50"
                   )}
                 >
-                  {isCurrent ? 'Current Plan' : `Get ${tier.name}`}
+                  {isLoading ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : isCurrent ? (
+                    <>
+                      <Check size={20} />
+                      <span>Current Plan</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard size={20} />
+                      <span>Choose {tier.name.replace(' Pack', '')}</span>
+                    </>
+                  )}
                 </motion.button>
               </motion.div>
             )
