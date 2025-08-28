@@ -14,7 +14,7 @@ export async function debugStripeConfig() {
   // Test Stripe initialization
   try {
     const { loadStripe } = await import('@stripe/stripe-js')
-    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '')
     console.log('\n💳 Stripe.js:', stripe ? '✅ Loaded successfully' : '❌ Failed to load')
   } catch (error) {
     console.error('❌ Stripe.js error:', error)
@@ -46,6 +46,6 @@ export async function debugStripeConfig() {
 
 // Run in browser console or component
 if (typeof window !== 'undefined') {
-  (window as any).debugStripe = debugStripeConfig
+  (window).debugStripe = debugStripeConfig
   console.log('🚀 Run debugStripe() in console to test Stripe setup')
 }
