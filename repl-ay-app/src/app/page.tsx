@@ -10,6 +10,7 @@ import { PromptStudio } from '@/components/PromptStudio'
 import { WhitelistPage } from '@/components/WhitelistPage'
 import { LazyModal } from '@/components/LazyModal'
 import UserProfileDropdown from '@/components/UserProfileDropdown'
+import OnboardingCheck from '@/components/OnboardingCheck'
 import { NavigationMode, ChatMessage, ChatMode, ParallelChatInstance, UserTier } from '@/types'
 import { generateId } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
@@ -82,8 +83,8 @@ export default function Home() {
     console.log(`Selected tier: ${tier}`)
   }, [])
 
-  // Mock message sending
-  const handleSendMessage = async (content: string) => {
+  // Real message sending with database integration
+  const handleSendMessage = async (content: string, options?: { modelId?: string }) => {
     if (!isAuthenticated && messagesLeft <= 0) {
       return // Prevent sending if no messages left
     }
@@ -99,25 +100,63 @@ export default function Home() {
     setMessages(prev => [...prev, userMessage])
     setIsMessageLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Call real chat API
+      const token = localStorage.getItem('r_token')
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify({
+          message: content,
+          mode: 'normal', // For main chat, always normal mode (deep research is for parallel chat)
+          modelId: options?.modelId,
+          messages: messages.map(msg => ({ role: msg.role, content: msg.content }))
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const aiResponse: ChatMessage = {
+          id: generateId(),
+          role: 'assistant',
+          content: data.message,
+          timestamp: new Date()
+        }
+        
+        setMessages(prev => [...prev, aiResponse])
+        
+        // Show fallback notice if a fallback model was used
+        if (data.fallback && data.originalModel) {
+          console.log(`Fallback: ${data.originalModel} → ${data.modelId}`)
+        }
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'API call failed')
+      }
+    } catch (error) {
+      console.error('Chat API error:', error)
+      // Fallback to error response
       const aiResponse: ChatMessage = {
         id: generateId(),
         role: 'assistant',
-        content: `I understand you'd like me to help with: "${content}". This is a demo response showing how R; will work when fully launched. The AI will provide detailed, contextual responses based on your prompts.`,
+        content: error instanceof Error ? error.message : 'I\'m currently experiencing some connectivity issues, but I\'m working to provide you with the best possible assistance.',
         timestamp: new Date()
       }
       
       setMessages(prev => [...prev, aiResponse])
+    } finally {
       setIsMessageLoading(false)
       
       if (!isAuthenticated) {
         setMessagesLeft(prev => Math.max(0, prev - 1))
       }
-    }, 1500)
+    }
   }
 
-  // Parallel chat handlers
+  // Parallel chat handlers with real API
   const handleParallelSend = async (instanceId: string, content: string) => {
     const instance = parallelInstances.find(i => i.id === instanceId)
     if (!instance) return
@@ -136,14 +175,48 @@ export default function Home() {
         : inst
     ))
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Call real chat API with deep research mode if enabled
+      const token = localStorage.getItem('r_token')
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify({
+          message: content,
+          mode: instance.deepResearch ? 'deep' : 'normal',
+          conversationId: instanceId
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const aiResponse: ChatMessage = {
+          id: generateId(),
+          role: 'assistant',
+          content: data.message,
+          timestamp: new Date()
+        }
+
+        setParallelInstances(prev => prev.map(inst => 
+          inst.id === instanceId 
+            ? { ...inst, messages: [...inst.messages, aiResponse], isLoading: false }
+            : inst
+        ))
+      } else {
+        throw new Error('API call failed')
+      }
+    } catch (error) {
+      console.error('Parallel chat API error:', error)
+      // Fallback response on error
       const aiResponse: ChatMessage = {
         id: generateId(),
         role: 'assistant',
         content: instance.deepResearch 
-          ? `Deep Research Response for "${content}": This would include comprehensive analysis, multiple sources, and detailed insights. The deep research mode provides more thorough responses with citations and expanded context.`
-          : `Standard response for "${content}": This is a focused answer to your specific question using R;'s AI capabilities.`,
+          ? `Deep Research Response for "${content}": I'm currently experiencing connectivity issues, but when fully operational, this mode provides comprehensive analysis with multiple sources and detailed insights.`
+          : `Standard response for "${content}": I'm currently experiencing connectivity issues, but I'm working to provide you with focused answers using R;'s AI capabilities.`,
         timestamp: new Date()
       }
 
@@ -152,11 +225,11 @@ export default function Home() {
           ? { ...inst, messages: [...inst.messages, aiResponse], isLoading: false }
           : inst
       ))
+    }
 
-      if (!isAuthenticated) {
-        setMessagesLeft(prev => Math.max(0, prev - 1))
-      }
-    }, 2000)
+    if (!isAuthenticated) {
+      setMessagesLeft(prev => Math.max(0, prev - 1))
+    }
   }
 
   const updateParallelInstance = (instanceId: string, updates: Partial<ParallelChatInstance>) => {
@@ -280,6 +353,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
+      <OnboardingCheck />
       {/* Enhanced gradient background overlay for extra richness */}
       <div className="fixed inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent pointer-events-none z-0"></div>
       

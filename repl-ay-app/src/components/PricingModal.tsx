@@ -122,32 +122,32 @@ function PricingModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-gradient-to-br from-green-50/90 via-emerald-50/85 to-teal-50/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-gradient-to-br from-cream-50 to-orange-50 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-green-200/60"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="p-6 border-b border-orange-200/50">
+          <div className="p-6 border-b border-green-200/40 bg-gradient-to-r from-green-50/80 to-emerald-50/60">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-3xl font-bold text-enhanced-contrast">
+                <h2 className="text-3xl font-bold text-gray-800">
                   Upgrade Your R; Experience
                 </h2>
                 {blockedFeature && (
-                  <p className="text-enhanced mt-2">
-                    <span className="font-semibold text-orange-600">"{blockedFeature}"</span> requires a premium plan
+                  <p className="text-gray-600 mt-2">
+                    <span className="font-semibold text-orange-600">&quot;{blockedFeature}&quot;</span> requires a premium plan
                   </p>
                 )}
               </div>
               <motion.button
                 onClick={onClose}
-                className="p-2 rounded-xl hover:bg-white/20 transition-colors text-enhanced-contrast"
+                className="p-2 rounded-xl hover:bg-green-100/60 transition-colors text-gray-600"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -176,14 +176,14 @@ function PricingModal({
                     className={cn(
                       'relative rounded-2xl p-6 border-2 transition-all',
                       isCurrentTier 
-                        ? 'border-orange-400 bg-white/60' 
-                        : 'border-white/20 bg-white/40 hover:border-orange-300 hover:bg-white/60',
-                      tier.popular && 'ring-2 ring-orange-400 ring-offset-2 ring-offset-transparent'
+                        ? 'border-green-400 bg-green-50/80' 
+                        : 'border-gray-200/60 bg-white/80 hover:border-green-300 hover:bg-green-50/40',
+                      tier.popular && 'ring-2 ring-green-400 ring-offset-2 ring-offset-transparent'
                     )}
                   >
                     {tier.popular && (
                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                        <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                           Most Popular
                         </span>
                       </div>
@@ -194,14 +194,14 @@ function PricingModal({
                       <div className={cn('w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br flex items-center justify-center', tier.color)}>
                         <Icon className="text-white" size={32} />
                       </div>
-                      <h3 className="text-xl font-bold text-enhanced-contrast mb-2">
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">
                         {tier.name}
                       </h3>
                       <div className="mb-4">
-                        <span className="text-4xl font-bold text-enhanced-contrast">
+                        <span className="text-4xl font-bold text-gray-800">
                           ${tier.price}
                         </span>
-                        <span className="text-enhanced">/{tier.interval}</span>
+                        <span className="text-gray-600">/{tier.interval}</span>
                       </div>
                     </div>
 
@@ -210,7 +210,7 @@ function PricingModal({
                       {tier.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-start space-x-2">
                           <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-enhanced-contrast">{feature}</span>
+                          <span className="text-sm text-gray-700">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -224,8 +224,8 @@ function PricingModal({
                         isCurrentTier
                           ? 'bg-green-100 text-green-700 cursor-default'
                           : isUpgrade
-                          ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:from-orange-600 hover:to-amber-600 shadow-lg'
-                          : 'bg-white/30 text-enhanced-contrast hover:bg-white/50'
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 shadow-lg'
+                          : 'bg-white/50 text-gray-700 hover:bg-white/70 border border-gray-200'
                       )}
                       whileHover={!isCurrentTier ? { scale: 1.02 } : undefined}
                       whileTap={!isCurrentTier ? { scale: 0.98 } : undefined}
@@ -238,43 +238,43 @@ function PricingModal({
             </div>
 
             {/* Features Comparison */}
-            <div className="mt-8 p-6 glass rounded-2xl">
-              <h3 className="text-xl font-bold text-enhanced-contrast mb-4 text-center">
+            <div className="mt-8 p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/60">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
                 Feature Comparison
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-white/20">
-                      <th className="text-left py-3 px-4 text-enhanced-contrast font-semibold">Feature</th>
+                    <tr className="border-b border-gray-200/40">
+                      <th className="text-left py-3 px-4 text-gray-800 font-semibold">Feature</th>
                       {pricingTiers.map(tier => (
-                        <th key={tier.id} className="text-center py-3 px-4 text-enhanced-contrast font-semibold">
+                        <th key={tier.id} className="text-center py-3 px-4 text-gray-800 font-semibold">
                           {tier.name}
                         </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-white/10">
-                      <td className="py-3 px-4 text-enhanced-contrast">Messages per day</td>
+                    <tr className="border-b border-gray-200/30">
+                      <td className="py-3 px-4 text-gray-700">Messages per day</td>
                       {pricingTiers.map(tier => (
-                        <td key={tier.id} className="text-center py-3 px-4 text-enhanced">
+                        <td key={tier.id} className="text-center py-3 px-4 text-gray-600">
                           {tier.limits.messagesPerDay === -1 ? '∞' : tier.limits.messagesPerDay}
                         </td>
                       ))}
                     </tr>
-                    <tr className="border-b border-white/10">
-                      <td className="py-3 px-4 text-enhanced-contrast">Parallel chats</td>
+                    <tr className="border-b border-gray-200/30">
+                      <td className="py-3 px-4 text-gray-700">Parallel chats</td>
                       {pricingTiers.map(tier => (
-                        <td key={tier.id} className="text-center py-3 px-4 text-enhanced">
+                        <td key={tier.id} className="text-center py-3 px-4 text-gray-600">
                           {tier.limits.parallelChats === -1 ? '∞' : tier.limits.parallelChats}
                         </td>
                       ))}
                     </tr>
-                    <tr className="border-b border-white/10">
-                      <td className="py-3 px-4 text-enhanced-contrast">Agent crews</td>
+                    <tr className="border-b border-gray-200/30">
+                      <td className="py-3 px-4 text-gray-700">Agent crews</td>
                       {pricingTiers.map(tier => (
-                        <td key={tier.id} className="text-center py-3 px-4 text-enhanced">
+                        <td key={tier.id} className="text-center py-3 px-4 text-gray-600">
                           {tier.limits.agentCrews === -1 ? '∞' : tier.limits.agentCrews}
                         </td>
                       ))}

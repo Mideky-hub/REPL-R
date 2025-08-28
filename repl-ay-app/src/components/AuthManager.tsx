@@ -33,11 +33,11 @@ export default function AuthManager({ trigger, onAuthComplete, isOpen = false, o
     handleCloseAuthModal()
     setPendingUser(authResult)
 
-    // If it's a new user (registration or first-time Google login), show onboarding
+    // Show onboarding if user needs profile completion
     if (authResult.isNewUser) {
       setShowOnboardingModal(true)
     } else {
-      // Existing user, authentication complete
+      // User has complete profile, authentication complete
       onAuthComplete?.()
     }
   }

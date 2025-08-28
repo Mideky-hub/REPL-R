@@ -64,10 +64,10 @@ export function WhitelistPage({ onClose }: WhitelistPageProps) {
           </motion.div>
           
           <h2 className="text-4xl font-bold text-enhanced-contrast mb-4">
-            You're on the list! 🎉
+            You&apos;re on the list! 🎉
           </h2>
           <p className="text-xl text-enhanced mb-8">
-            Thank you for joining our exclusive launch event. We'll notify you as soon as R; goes live!
+            Thank you for joining our exclusive launch event. We&apos;ll notify you as soon as R; goes live!
           </p>
           
           <div className="space-y-4 text-enhanced mb-8">
@@ -144,7 +144,7 @@ export function WhitelistPage({ onClose }: WhitelistPageProps) {
             className="space-y-6"
           >
             <h3 className="text-2xl font-semibold text-enhanced-contrast mb-6">
-              What you'll get:
+              What you&apos;ll get:
             </h3>
             
             <div className="space-y-4">
@@ -237,7 +237,7 @@ export function WhitelistPage({ onClose }: WhitelistPageProps) {
             </form>
 
             <p className="text-xs text-enhanced text-center mt-4">
-              We'll only email you about the R; launch. No spam, ever.
+              We&apos;ll only email you about the R; launch. No spam, ever.
             </p>
           </motion.div>
         </div>

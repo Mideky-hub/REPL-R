@@ -6,27 +6,6 @@ import { Send, Sparkles, User, Bot, LogIn, MessageCircle, Grid3X3, Plus, X, Sett
 import { ChatMessage, ChatMode, ParallelChatInstance } from '@/types'
 import { cn } from '@/lib/utils'
 import { LogoHero } from '@/components/Logo'
-                  }}
-                  className={cn(
-                    'p-3 rounded-full transition-all duration-200 relative',
-                    mode === 'parallel' 
-                      ? 'bg-white/30 text-enhanced-contrast shadow-sm' 
-                      : 'text-enhanced hover:bg-white/20'
-                  )}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Grid3X3 size={20} />
-                  {!['essential', 'developer', 'founder', 'pro'].includes(userTier) && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">+</span>
-                    </div>
-                  )}
-                </motion.button>framer-motion'
-import { Send, Sparkles, User, Bot, LogIn, MessageCircle, Grid3X3, Plus, X, Settings, Search } from 'lucide-react'
-import { ChatMessage, ChatMode, ParallelChatInstance } from '@/types'
-import { cn } from '@/lib/utils'
-import { LogoHero } from '@/components/Logo'
 
 interface ChatInterfaceProps {
   mode: ChatMode
@@ -97,6 +76,15 @@ export function ChatInterface({
     onParallelSend(instanceId, instanceInput.trim())
   }
 
+  const handleParallelModeClick = () => {
+    // Check if parallel mode requires premium
+    if (!['essential', 'developer', 'founder', 'pro'].includes(userTier) && onUpgrade) {
+      onUpgrade('Parallel Chat Mode')
+      return
+    }
+    onModeChange?.('parallel')
+  }
+
   return (
     <div className="min-h-screen pt-24 pb-8 px-8">
       <div className="max-w-6xl mx-auto">
@@ -124,9 +112,9 @@ export function ChatInterface({
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => onModeChange('parallel')}
+                  onClick={handleParallelModeClick}
                   className={cn(
-                    'p-3 rounded-full transition-all duration-200',
+                    'p-3 rounded-full transition-all duration-200 relative',
                     mode === 'parallel' 
                       ? 'bg-white/30 text-enhanced-contrast shadow-sm' 
                       : 'text-enhanced hover:bg-white/20'
@@ -135,6 +123,11 @@ export function ChatInterface({
                   whileTap={{ scale: 0.95 }}
                 >
                   <Grid3X3 size={20} />
+                  {!['essential', 'developer', 'founder', 'pro'].includes(userTier) && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">+</span>
+                    </div>
+                  )}
                 </motion.button>
               </div>
             </motion.div>
@@ -290,40 +283,58 @@ export function ChatInterface({
               </motion.div>
             )}
 
-            {/* Input Form */}
-            <motion.form
-              onSubmit={handleSubmit}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-4xl mx-auto"
+            {/* Input Form - Fixed positioning with proper animations */}
+            <motion.div
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ 
+                position: messages.length > 0 ? 'fixed' : 'static',
+                bottom: messages.length > 0 ? '2rem' : 'auto',
+                left: messages.length > 0 ? '50%' : 'auto',
+                x: messages.length > 0 ? '-50%' : 0,
+                zIndex: messages.length > 0 ? 40 : 'auto',
+                maxWidth: messages.length > 0 ? '600px' : '1024px',
+                width: messages.length > 0 ? 'calc(100vw - 4rem)' : '100%'
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 260, 
+                damping: 20,
+                duration: 0.6
+              }}
+              className={messages.length === 0 ? "max-w-4xl mx-auto" : ""}
             >
-              <div className="glass rounded-2xl p-2 shadow-lg">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask R; anything..."
-                    className="flex-1 bg-transparent text-enhanced-contrast placeholder-amber-600 border-none outline-none text-lg"
-                    disabled={isLoading || (!isAuthenticated && messagesLeft <= 0)}
-                  />
-                  <motion.button
-                    type="submit"
-                    disabled={!input.trim() || isLoading || (!isAuthenticated && messagesLeft <= 0)}
-                    className={cn(
-                      "p-3 rounded-xl transition-all",
-                      input.trim() && !isLoading && (isAuthenticated || messagesLeft > 0)
-                        ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg"
-                        : "bg-white/10 text-enhanced cursor-not-allowed"
-                    )}
-                    whileHover={input.trim() && !isLoading ? { scale: 1.05 } : undefined}
-                    whileTap={input.trim() && !isLoading ? { scale: 0.95 } : undefined}
-                  >
-                    <Send size={20} />
-                  </motion.button>
+              <motion.form
+                onSubmit={handleSubmit}
+                className="w-full"
+              >
+                <div className="glass rounded-2xl p-2 shadow-lg">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Ask R; anything..."
+                      className="flex-1 bg-transparent text-enhanced-contrast placeholder-amber-600 border-none outline-none text-lg"
+                      disabled={isLoading || (!isAuthenticated && messagesLeft <= 0)}
+                    />
+                    <motion.button
+                      type="submit"
+                      disabled={!input.trim() || isLoading || (!isAuthenticated && messagesLeft <= 0)}
+                      className={cn(
+                        "p-3 rounded-xl transition-all",
+                        input.trim() && !isLoading && (isAuthenticated || messagesLeft > 0)
+                          ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg"
+                          : "bg-white/10 text-enhanced cursor-not-allowed"
+                      )}
+                      whileHover={input.trim() && !isLoading ? { scale: 1.05 } : undefined}
+                      whileTap={input.trim() && !isLoading ? { scale: 0.95 } : undefined}
+                    >
+                      <Send size={20} />
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
-            </motion.form>
+              </motion.form>
+            </motion.div>
           </>
         ) : (
           // Parallel Chat Mode

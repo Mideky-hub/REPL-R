@@ -34,10 +34,10 @@ export default function UserProfileDropdown() {
 
   const getTierIcon = (tier: string) => {
     switch (tier) {
-      case 'founder': return <Crown className="w-4 h-4 text-white/90" />
-      case 'developer': return <Zap className="w-4 h-4 text-white/90" />
-      case 'essential': return <Shield className="w-4 h-4 text-white/90" />
-      default: return <User className="w-4 h-4 text-white/90" />
+      case 'founder': return <Crown className="w-4 h-4 text-slate-700" />
+      case 'developer': return <Zap className="w-4 h-4 text-slate-700" />
+      case 'essential': return <Shield className="w-4 h-4 text-slate-700" />
+      default: return <User className="w-4 h-4 text-slate-700" />
     }
   }
 
@@ -81,22 +81,22 @@ export default function UserProfileDropdown() {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
         {/* Avatar */}
-        <div className="relative w-8 h-8 bg-gradient-to-r from-white/20 to-white/10 rounded-lg flex items-center justify-center text-white text-sm font-medium shadow-inner">
+        <div className="relative w-8 h-8 bg-gradient-to-r from-white/20 to-white/10 rounded-lg flex items-center justify-center text-slate-800 text-sm font-semibold shadow-inner">
           {getInitials()}
         </div>
         
         {/* User Info */}
         <div className="relative hidden md:block text-left">
-          <div className="text-sm font-medium text-white drop-shadow-sm truncate max-w-32">
+          <div className="text-sm font-semibold text-slate-800 drop-shadow-sm truncate max-w-32">
             {getDisplayName()}
           </div>
-          <div className={`text-xs flex items-center space-x-1 text-white/80`}>
+          <div className={`text-xs flex items-center space-x-1 text-slate-700`}>
             {getTierIcon(user.tier)}
             <span>{getTierLabel(user.tier)}</span>
           </div>
         </div>
 
-        <ChevronDown className={`relative w-4 h-4 text-white drop-shadow-sm transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`relative w-4 h-4 text-slate-800 drop-shadow-sm transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown Menu */}

@@ -90,7 +90,7 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
   }
 
   return (
-    <div className="min-h-screen py-20 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50/95 via-emerald-50/90 to-teal-50/95 py-20 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -98,10 +98,10 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl font-bold text-white mb-6">
+          <h1 className="text-5xl font-bold text-enhanced-contrast mb-6">
             Choose Your Plan
           </h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto">
+          <p className="text-xl text-enhanced max-w-2xl mx-auto">
             From prompt optimization to full AI agent workflows - select the plan that fits your needs
           </p>
         </motion.div>
@@ -120,17 +120,17 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className={cn(
-                  "relative rounded-2xl p-8 transition-all duration-200",
+                  "relative bg-white/95 backdrop-blur-sm rounded-2xl p-8 transition-all duration-200 shadow-lg border border-green-100/50",
                   isHighlighted 
-                    ? "glass scale-105 ring-2 ring-white/30 shadow-2xl" 
-                    : "glass-dark hover:bg-white/5",
-                  isCurrent && "ring-2 ring-green-400/50"
+                    ? "scale-105 ring-2 ring-green-300/60 shadow-2xl" 
+                    : "hover:bg-white/90 hover:shadow-xl",
+                  isCurrent && "ring-2 ring-green-400/70 bg-green-50/80"
                 )}
               >
                 {/* Highlight Badge */}
                 {isHighlighted && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-white/20 text-white px-4 py-1 rounded-full text-sm font-medium">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg">
                       Recommended
                     </div>
                   </div>
@@ -139,7 +139,7 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
                 {/* Current Plan Badge */}
                 {isCurrent && (
                   <div className="absolute top-4 right-4">
-                    <div className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm font-medium">
+                    <div className="bg-green-500/20 text-green-700 px-3 py-1 rounded-full text-sm font-medium border border-green-300/50">
                       Current Plan
                     </div>
                   </div>
@@ -147,27 +147,27 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
 
                 <div className="text-center mb-6">
                   <div className={cn(
-                    "w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center",
-                    tier.name === 'Essential Pack' && "bg-yellow-500/20",
-                    tier.name === 'Developer Pack' && "bg-purple-500/20", 
-                    tier.name === 'Founder Pack' && "bg-orange-500/20"
+                    "w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center shadow-lg",
+                    tier.name === 'Essential Pack' && "bg-gradient-to-br from-yellow-400 to-orange-500",
+                    tier.name === 'Developer Pack' && "bg-gradient-to-br from-purple-500 to-pink-500", 
+                    tier.name === 'Founder Pack' && "bg-gradient-to-br from-emerald-500 to-teal-500"
                   )}>
                     <Icon size={32} className="text-white" />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-white mb-2">{tier.name}</h3>
+                  <h3 className="text-2xl font-bold text-enhanced-contrast mb-2">{tier.name}</h3>
                   
-                  <div className="text-4xl font-bold text-white mb-1">
+                  <div className="text-4xl font-bold text-enhanced-contrast mb-1">
                     €{tier.price}
-                    <span className="text-lg text-white/60 font-normal">/month</span>
+                    <span className="text-lg text-enhanced font-normal">/month</span>
                   </div>
                 </div>
 
                 <ul className="space-y-4 mb-8">
                   {tier.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start space-x-3">
-                      <Check size={20} className="text-green-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-white/80">{feature}</span>
+                      <Check size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-enhanced-contrast">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -178,12 +178,12 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
                   whileHover={!isCurrent ? { scale: 1.02 } : {}}
                   whileTap={!isCurrent ? { scale: 0.98 } : {}}
                   className={cn(
-                    "w-full py-3 px-6 rounded-full font-semibold transition-all duration-200",
+                    "w-full py-3 px-6 rounded-xl font-semibold transition-all duration-200 shadow-lg",
                     isCurrent
-                      ? "bg-green-500/20 text-green-300 cursor-not-allowed"
+                      ? "bg-green-100 text-green-700 cursor-not-allowed"
                       : isHighlighted
-                        ? "bg-white text-black hover:bg-white/90"
-                        : "bg-white/20 text-white hover:bg-white/30"
+                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600"
+                        : "bg-white/50 text-enhanced-contrast hover:bg-white/70 border border-green-200/50"
                   )}
                 >
                   {isCurrent ? 'Current Plan' : `Get ${tier.name}`}
@@ -200,14 +200,14 @@ export function PricingPage({ currentTier, highlightTier = 'developer', onSelect
           transition={{ delay: 0.5 }}
           className="mt-16 text-center"
         >
-          <div className="glass-dark rounded-xl p-6 max-w-2xl mx-auto">
-            <h3 className="text-xl font-semibold text-white mb-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 max-w-2xl mx-auto shadow-lg border border-green-100/50">
+            <h3 className="text-xl font-semibold text-enhanced-contrast mb-4">
               Need something custom?
             </h3>
-            <p className="text-white/70 mb-4">
+            <p className="text-enhanced mb-4">
               Our Pro Plan offers unlimited resources, enterprise security, and dedicated support.
             </p>
-            <button className="text-white underline hover:text-white/80 transition-colors">
+            <button className="text-green-600 hover:text-green-700 underline transition-colors font-medium">
               Contact Sales for Enterprise Pricing
             </button>
           </div>

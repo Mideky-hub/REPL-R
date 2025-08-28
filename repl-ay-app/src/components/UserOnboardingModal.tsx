@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronRight, Building2, Briefcase, Users, Globe, Zap } from 'lucide-react'
+import { X, ChevronRight, Building2, Briefcase, Users, Globe, Zap, Loader2, CheckCircle } from 'lucide-react'
 
 interface OnboardingData {
   firstName: string
@@ -101,6 +101,9 @@ export default function UserOnboardingModal({
   userEmail 
 }: UserOnboardingModalProps) {
   const [currentStep, setCurrentStep] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState<OnboardingData>({
     firstName: '',
     lastName: '',
@@ -117,11 +120,28 @@ export default function UserOnboardingModal({
 
   const totalSteps = 4
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     } else {
-      onComplete(formData)
+      // Complete setup
+      setIsLoading(true)
+      setError('')
+      
+      try {
+        await onComplete(formData)
+        setShowSuccess(true)
+        
+        // Show success message for 2 seconds before closing
+        setTimeout(() => {
+          setShowSuccess(false)
+          setIsLoading(false)
+          onClose()
+        }, 2000)
+      } catch (err: any) {
+        setError(err.message || 'Failed to complete setup. Please try again.')
+        setIsLoading(false)
+      }
     }
   }
 
@@ -376,18 +396,56 @@ export default function UserOnboardingModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-gradient-to-br from-green-50/95 via-emerald-50/90 to-teal-50/95 backdrop-blur-md flex items-center justify-center z-50 p-4"
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="glass rounded-2xl border border-white/20 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+            className="bg-white/95 backdrop-blur-sm rounded-2xl border border-green-100/50 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
           >
             
+            {/* Success Overlay */}
+            <AnimatePresence>
+              {showSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="absolute inset-0 bg-green-50/98 backdrop-blur-sm rounded-2xl flex items-center justify-center z-10"
+                >
+                  <div className="text-center">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                      className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg"
+                    >
+                      <CheckCircle className="w-10 h-10 text-white" />
+                    </motion.div>
+                    <motion.h3
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="text-2xl font-bold text-green-700 mb-2"
+                    >
+                      Welcome to R;!
+                    </motion.h3>
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="text-green-600"
+                    >
+                      Your account has been set up successfully
+                    </motion.p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             {/* Header */}
-            <div className="px-8 py-6 border-b border-white/20">
+            <div className="px-8 py-6 border-b border-green-100/50 bg-gradient-to-r from-green-50/50 to-emerald-50/50">
               <button
                 onClick={onClose}
                 className="absolute right-6 top-6 p-2 hover:bg-white/20 rounded-lg transition-colors"
@@ -430,7 +488,6 @@ export default function UserOnboardingModal({
             </div>
 
             {/* Content */}
-                        {/* Content */}
             <div className="px-8 py-6 space-y-6 overflow-y-auto max-h-[calc(90vh-180px)]">
               <motion.div
                 key={currentStep}
@@ -441,6 +498,17 @@ export default function UserOnboardingModal({
               >
                 {renderStepContent()}
               </motion.div>
+              
+              {/* Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-50/80 border border-red-200/50 text-red-700 px-4 py-3 rounded-xl text-sm backdrop-blur-sm"
+                >
+                  {error}
+                </motion.div>
+              )}
             </div>
 
             {/* Footer */}
@@ -455,20 +523,28 @@ export default function UserOnboardingModal({
               ) : (
                 <div />
               )}
-              
                 <motion.button
                 onClick={handleNext}
-                disabled={!isStepValid()}
-                whileHover={{ scale: isStepValid() ? 1.02 : 1 }}
-                whileTap={{ scale: isStepValid() ? 0.98 : 1 }}
+                disabled={!isStepValid() || isLoading}
+                whileHover={{ scale: isStepValid() && !isLoading ? 1.02 : 1 }}
+                whileTap={{ scale: isStepValid() && !isLoading ? 0.98 : 1 }}
                 className={`px-6 py-3 rounded-xl font-medium flex items-center space-x-2 transition-all shadow-lg border border-white/20 ${
-                  isStepValid()
+                  isStepValid() && !isLoading
                     ? 'glass hover:bg-white/20 text-enhanced-contrast'
                     : 'bg-gray-400/50 text-enhanced cursor-not-allowed'
                 }`}
               >
-                <span>{currentStep === totalSteps ? 'Complete Setup' : 'Continue'}</span>
-                <ChevronRight className="w-4 h-4" />
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Setting up your account...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{currentStep === totalSteps ? 'Complete Setup' : 'Continue'}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </>
+                )}
               </motion.button>
             </div>
           </motion.div>

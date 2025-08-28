@@ -6,12 +6,14 @@ import { Send, Sparkles, User, Bot, LogIn, MessageCircle, Grid3X3, Plus, X, Sett
 import { ChatMessage, ChatMode, ParallelChatInstance } from '@/types'
 import { cn } from '@/lib/utils'
 import { LogoHero } from '@/components/Logo'
+import { ModelSelector } from '@/components/ModelSelector'
+import { DEFAULT_MODEL } from '@/lib/aiModels'
 
 interface ChatInterfaceProps {
   mode: ChatMode
   isAuthenticated: boolean
   messagesLeft: number
-  onSendMessage: (message: string) => void
+  onSendMessage: (message: string, options?: { modelId?: string }) => void
   onLoginClick: () => void
   messages: ChatMessage[]
   isLoading: boolean
@@ -51,6 +53,7 @@ export function ChatInterface({
   onUpgrade
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('')
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Scroll to bottom when new messages arrive
@@ -62,13 +65,13 @@ export function ChatInterface({
     e.preventDefault()
     if (!input.trim() || isLoading) return
     
-    onSendMessage(input.trim())
+    onSendMessage(input.trim(), { modelId: selectedModel })
     setInput('')
   }
 
   const handleSuggestedPrompt = (prompt: string) => {
     setInput(prompt)
-    setTimeout(() => onSendMessage(prompt), 100)
+    setTimeout(() => onSendMessage(prompt, { modelId: selectedModel }), 100)
   }
 
   const handleParallelSubmit = (instanceId: string, instanceInput: string) => {
@@ -283,40 +286,67 @@ export function ChatInterface({
               </motion.div>
             )}
 
-            {/* Input Form */}
-            <motion.form
-              onSubmit={handleSubmit}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-4xl mx-auto"
+            {/* Input Form - Fixed positioning with proper animations */}
+            <motion.div
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ 
+                position: messages.length > 0 ? 'fixed' : 'static',
+                bottom: messages.length > 0 ? '2rem' : 'auto',
+                left: messages.length > 0 ? '50%' : 'auto',
+                x: messages.length > 0 ? '-50%' : 0,
+                zIndex: messages.length > 0 ? 40 : 'auto',
+                maxWidth: messages.length > 0 ? '600px' : '1024px',
+                width: messages.length > 0 ? 'calc(100vw - 4rem)' : '100%'
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 260, 
+                damping: 20,
+                duration: 0.6
+              }}
+              className={messages.length === 0 ? "max-w-4xl mx-auto space-y-4" : "space-y-4"}
             >
-              <div className="glass rounded-2xl p-2 shadow-lg">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask R; anything..."
-                    className="flex-1 bg-transparent text-enhanced-contrast placeholder-amber-600 border-none outline-none text-lg"
-                    disabled={isLoading || (!isAuthenticated && messagesLeft <= 0)}
-                  />
-                  <motion.button
-                    type="submit"
-                    disabled={!input.trim() || isLoading || (!isAuthenticated && messagesLeft <= 0)}
-                    className={cn(
-                      "p-3 rounded-xl transition-all",
-                      input.trim() && !isLoading && (isAuthenticated || messagesLeft > 0)
-                        ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg"
-                        : "bg-white/10 text-enhanced cursor-not-allowed"
-                    )}
-                    whileHover={input.trim() && !isLoading ? { scale: 1.05 } : undefined}
-                    whileTap={input.trim() && !isLoading ? { scale: 0.95 } : undefined}
-                  >
-                    <Send size={20} />
-                  </motion.button>
-                </div>
+              {/* Model Selector */}
+              <div className="w-full max-w-sm mx-auto">
+                <ModelSelector 
+                  selectedModel={selectedModel}
+                  onModelChange={setSelectedModel}
+                  isLoading={isLoading}
+                />
               </div>
-            </motion.form>
+
+              <motion.form
+                onSubmit={handleSubmit}
+                className="w-full"
+              >
+                <div className="glass rounded-2xl p-2 shadow-lg">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Ask R; anything..."
+                      className="flex-1 bg-transparent text-enhanced-contrast placeholder-amber-600 border-none outline-none text-lg"
+                      disabled={isLoading || (!isAuthenticated && messagesLeft <= 0)}
+                    />
+                    <motion.button
+                      type="submit"
+                      disabled={!input.trim() || isLoading || (!isAuthenticated && messagesLeft <= 0)}
+                      className={cn(
+                        "p-3 rounded-xl transition-all",
+                        input.trim() && !isLoading && (isAuthenticated || messagesLeft > 0)
+                          ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg"
+                          : "bg-white/10 text-enhanced cursor-not-allowed"
+                      )}
+                      whileHover={input.trim() && !isLoading ? { scale: 1.05 } : undefined}
+                      whileTap={input.trim() && !isLoading ? { scale: 0.95 } : undefined}
+                    >
+                      <Send size={20} />
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.form>
+            </motion.div>
           </>
         ) : (
           // Parallel Chat Mode

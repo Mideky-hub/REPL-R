@@ -33,9 +33,23 @@ interface AuthContextType {
   isLoading: boolean
   login: (email: string, password: string) => Promise<User>
   register: (email: string, password: string) => Promise<User>
-  loginWithGoogle: () => Promise<User>
+  loginWithGoogle: () => Promise<{ user: User; needsOnboarding: boolean }>
   completeOnboarding: (data: OnboardingData) => Promise<User>
   logout: () => void
+}
+
+// Add global type for Google OAuth
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void
+          prompt: (callback?: (notification: any) => void) => void
+        }
+      }
+    }
+  }
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -60,13 +74,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Check for existing session on mount
     const checkSession = async () => {
       try {
-        const storedUser = localStorage.getItem('r_user')
-        if (storedUser) {
-          setUser(JSON.parse(storedUser))
+        const token = localStorage.getItem('r_token')
+        if (token) {
+          // Verify token with backend
+          const response = await fetch('/api/auth/verify', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          })
+
+          if (response.ok) {
+            const { user: userData } = await response.json()
+            setUser({
+              id: userData.id,
+              email: userData.email,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              jobTitle: userData.jobTitle,
+              company: userData.company,
+              tier: userData.tier,
+              isOnboarded: !!userData.firstName && !!userData.lastName && !!userData.jobTitle && !!userData.company,
+              createdAt: userData.createdAt
+            })
+          } else {
+            // Token is invalid, remove it
+            localStorage.removeItem('r_token')
+          }
         }
       } catch (error) {
         console.error('Failed to restore session:', error)
-        localStorage.removeItem('r_user')
+        localStorage.removeItem('r_token')
       } finally {
         setIsLoading(false)
       }
@@ -75,9 +114,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkSession()
   }, [])
 
-  const saveUserSession = (userData: User) => {
+  const saveUserSession = (userData: User, token: string) => {
     setUser(userData)
-    localStorage.setItem('r_user', JSON.stringify(userData))
+    localStorage.setItem('r_token', token)
     
     // Track user authentication event (for analytics)
     trackUserEvent('auth_success', {
@@ -116,26 +155,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Mock user data - in real implementation, this would come from your API
-      const userData: User = {
-        id: `user_${Date.now()}`,
-        email,
-        firstName: 'John',
-        lastName: 'Doe',
-        jobTitle: 'Software Engineer',
-        company: 'Acme Corp',
-        tier: 'free',
-        isOnboarded: true,
-        createdAt: new Date().toISOString()
+      // API call to login
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Login failed')
       }
 
-      saveUserSession(userData)
-      return userData
+      const { user: userData, token, needsOnboarding } = await response.json()
+      
+      const user: User = {
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        jobTitle: userData.jobTitle,
+        company: userData.company,
+        tier: userData.tier || 'free',
+        isOnboarded: !needsOnboarding,
+        createdAt: userData.createdAt
+      }
+
+      saveUserSession(user, token)
+      return user
     } catch (error) {
-      throw new Error('Login failed. Please check your credentials.')
+      throw error
     } finally {
       setIsLoading(false)
     }
@@ -145,66 +194,121 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Create new user - needs onboarding
-      const userData: User = {
-        id: `user_${Date.now()}`,
-        email,
-        tier: 'free',
-        isOnboarded: false,
-        createdAt: new Date().toISOString()
+      // API call to register
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Registration failed')
       }
 
-      saveUserSession(userData)
+      const { user: userData, token } = await response.json()
+      
+      const user: User = {
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        jobTitle: userData.jobTitle,
+        company: userData.company,
+        tier: userData.tier || 'free',
+        isOnboarded: false, // New users always need onboarding
+        createdAt: userData.createdAt
+      }
+
+      saveUserSession(user, token)
       
       // Track registration conversion
       trackUserEvent('user_registered', {
-        user_id: userData.id,
-        email: userData.email,
+        user_id: user.id,
+        email: user.email,
         registration_method: 'email'
       })
 
-      return userData
+      return user
     } catch (error) {
-      throw new Error('Registration failed. Please try again.')
+      throw error
     } finally {
       setIsLoading(false)
     }
   }
 
-  const loginWithGoogle = async (): Promise<User> => {
+  const loginWithGoogle = async (): Promise<{ user: User; needsOnboarding: boolean }> => {
     try {
       setIsLoading(true)
       
-      // Simulate Google OAuth API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Simulate Google user data
-      const isNewUser = Math.random() > 0.5 // 50% chance of new user
-      const userData: User = {
-        id: `google_user_${Date.now()}`,
-        email: `user${Math.floor(Math.random() * 1000)}@gmail.com`,
-        firstName: isNewUser ? undefined : 'Jane',
-        lastName: isNewUser ? undefined : 'Smith',
-        tier: 'free',
-        isOnboarded: !isNewUser,
-        createdAt: new Date().toISOString()
+      // Initialize Google Auth
+      if (!window.google?.accounts?.id) {
+        throw new Error('Google OAuth not loaded')
       }
 
-      saveUserSession(userData)
+      // Get Google OAuth token
+      const { credential } = await new Promise<{ credential: string }>((resolve, reject) => {
+        if (!window.google?.accounts?.id) {
+          reject(new Error('Google OAuth not available'))
+          return
+        }
+
+        window.google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+          callback: resolve,
+          auto_select: false,
+          cancel_on_tap_outside: true
+        })
+
+        window.google.accounts.id.prompt((notification: any) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            reject(new Error('Google OAuth cancelled'))
+          }
+        })
+      })
+
+      // Decode JWT token to get user info
+      const payload = JSON.parse(atob(credential.split('.')[1]))
+      
+      // API call to authenticate with backend
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential, tokenPayload: payload }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Google authentication failed')
+      }
+
+      const { user: userData, isNewUser, needsOnboarding, token } = await response.json()
+      
+      const user: User = {
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        jobTitle: userData.jobTitle,
+        company: userData.company,
+        tier: userData.tier || 'free',
+        isOnboarded: !needsOnboarding,
+        createdAt: userData.createdAt
+      }
+
+      saveUserSession(user, token)
       
       // Track Google authentication
       trackUserEvent(isNewUser ? 'user_registered' : 'user_login', {
-        user_id: userData.id,
-        email: userData.email,
+        user_id: user.id,
+        email: user.email,
         registration_method: 'google_oauth',
-        is_new_user: isNewUser
+        is_new_user: isNewUser,
+        needs_onboarding: needsOnboarding
       })
 
-      return userData
+      return { user, needsOnboarding }
     } catch (error) {
+      console.error('Google OAuth error:', error)
       throw new Error('Google authentication failed. Please try again.')
     } finally {
       setIsLoading(false)
@@ -217,8 +321,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true)
       
-      // Simulate API call to update user profile
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Get current token to maintain session
+      const currentToken = localStorage.getItem('r_token')
+      if (!currentToken) {
+        throw new Error('No authentication token found')
+      }
+      
+      // API call to update user profile
+      const response = await fetch('/api/auth/onboarding', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentToken}`
+        },
+        body: JSON.stringify({
+          onboardingData: data
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to complete onboarding')
+      }
+
+      const { user: updatedUserData } = await response.json()
       
       const updatedUser: User = {
         ...user,
@@ -229,7 +354,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isOnboarded: true
       }
 
-      saveUserSession(updatedUser)
+      // Get current token to maintain session
+      const token = localStorage.getItem('r_token')
+      if (token) {
+        saveUserSession(updatedUser, token)
+      } else {
+        setUser(updatedUser)
+      }
       
       // Track comprehensive onboarding data
       trackUserEvent('onboarding_completed', {
@@ -265,6 +396,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       return updatedUser
     } catch (error) {
+      console.error('Onboarding error:', error)
       throw new Error('Failed to complete onboarding. Please try again.')
     } finally {
       setIsLoading(false)
@@ -281,7 +413,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     
     setUser(null)
-    localStorage.removeItem('r_user')
+    localStorage.removeItem('r_token')
     sessionStorage.removeItem('r_session_id')
   }
 
