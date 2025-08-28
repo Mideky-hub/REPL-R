@@ -64,13 +64,6 @@ export const MODEL_PROVIDERS: ModelProvider[] = [
     apiKeyRequired: true
   },
   {
-    id: 'zai',
-    name: 'Z.ai',
-    icon: '⭐',
-    website: 'https://z.ai',
-    apiKeyRequired: true
-  },
-  {
     id: 'qwen',
     name: 'Qwen',
     icon: '🎯',
@@ -101,7 +94,7 @@ export const MODEL_PROVIDERS: ModelProvider[] = [
 ]
 
 export const AI_MODELS: AIModel[] = [
-  // OpenAI Models - GPT-5, GPT-4.5, GPT-4.1 Series (incl. Mini, Nano), GPT-4o (reinstated), o3 Series
+  // OpenAI Models - Using correct API names from LangChain reference
   {
     id: 'gpt-5',
     name: 'GPT-5',
@@ -116,62 +109,10 @@ export const AI_MODELS: AIModel[] = [
     isLocal: false
   },
   {
-    id: 'gpt-4.5',
-    name: 'GPT-4.5',
-    provider: 'openai',
-    description: 'Enhanced GPT-4 with improved performance and capabilities',
-    maxTokens: 12288,
-    supportsStreaming: true,
-    costPer1kTokens: 0.04,
-    category: 'reasoning',
-    icon: '⭐',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'gpt-4.1',
-    name: 'GPT-4.1',
-    provider: 'openai',
-    description: 'Latest GPT-4.1 with refined performance',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0.035,
-    category: 'balanced',
-    icon: '🚀',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'gpt-4.1-mini',
-    name: 'GPT-4.1 Mini',
-    provider: 'openai',
-    description: 'Efficient version of GPT-4.1 for faster responses',
-    maxTokens: 4096,
-    supportsStreaming: true,
-    costPer1kTokens: 0.005,
-    category: 'fast',
-    icon: '⚡',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'gpt-4.1-nano',
-    name: 'GPT-4.1 Nano',
-    provider: 'openai',
-    description: 'Ultra-lightweight GPT-4.1 for simple tasks',
-    maxTokens: 2048,
-    supportsStreaming: true,
-    costPer1kTokens: 0.001,
-    category: 'fast',
-    icon: '�',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
     id: 'gpt-4o',
-    name: 'GPT-4o (Reinstated)',
+    name: 'GPT-4o',
     provider: 'openai',
-    description: 'Reinstated GPT-4o with multimodal capabilities',
+    description: 'Omni-modal model with enhanced vision and reasoning',
     maxTokens: 8192,
     supportsStreaming: true,
     costPer1kTokens: 0.03,
@@ -181,10 +122,23 @@ export const AI_MODELS: AIModel[] = [
     isLocal: false
   },
   {
-    id: 'o3-preview',
-    name: 'o3 Preview',
+    id: 'gpt-4.1-mini',
+    name: 'GPT-4.1 Mini',
     provider: 'openai',
-    description: 'Next-generation reasoning model with advanced chain-of-thought',
+    description: 'Efficient version of GPT-4.1 optimized for speed and cost',
+    maxTokens: 4096,
+    supportsStreaming: true,
+    costPer1kTokens: 0.005,
+    category: 'fast',
+    icon: '⚡',
+    requiresApiKey: true,
+    isLocal: false
+  },
+  {
+    id: 'o3',
+    name: 'o3',
+    provider: 'openai',
+    description: 'Advanced reasoning model optimized for complex problem-solving',
     maxTokens: 16384,
     supportsStreaming: false,
     costPer1kTokens: 0.2,
@@ -193,27 +147,14 @@ export const AI_MODELS: AIModel[] = [
     requiresApiKey: true,
     isLocal: false
   },
-  {
-    id: 'o3-mini',
-    name: 'o3 Mini',
-    provider: 'openai',
-    description: 'Smaller o3 model optimized for coding and mathematical reasoning',
-    maxTokens: 8192,
-    supportsStreaming: false,
-    costPer1kTokens: 0.05,
-    category: 'coding',
-    icon: '🔢',
-    requiresApiKey: true,
-    isLocal: false
-  },
 
-  // Anthropic Models - Claude Opus 4.1, Opus 4, Sonnet 4, Claude 3 (long context leader)
+  // Anthropic Models - Using correct API names from LangChain reference
   {
-    id: 'claude-opus-4.1',
+    id: 'claude-opus-4-1-20250805',
     name: 'Claude Opus 4.1',
     provider: 'anthropic',
-    description: 'Latest Claude Opus with enhanced capabilities',
-    maxTokens: 200000,
+    description: 'Most powerful Claude model with exceptional reasoning capabilities',
+    maxTokens: 8192,
     supportsStreaming: true,
     costPer1kTokens: 0.1,
     category: 'reasoning',
@@ -222,11 +163,11 @@ export const AI_MODELS: AIModel[] = [
     isLocal: false
   },
   {
-    id: 'claude-opus-4',
+    id: 'claude-opus-4-20250514',
     name: 'Claude Opus 4',
     provider: 'anthropic',
-    description: 'Most powerful Claude model for complex reasoning tasks',
-    maxTokens: 100000,
+    description: 'Flagship Claude model with advanced reasoning and analysis',
+    maxTokens: 8192,
     supportsStreaming: true,
     costPer1kTokens: 0.085,
     category: 'reasoning',
@@ -235,11 +176,11 @@ export const AI_MODELS: AIModel[] = [
     isLocal: false
   },
   {
-    id: 'claude-sonnet-4',
+    id: 'claude-sonnet-4-20250514',
     name: 'Claude Sonnet 4',
     provider: 'anthropic',
-    description: 'Balanced Claude model with excellent performance',
-    maxTokens: 50000,
+    description: 'Balanced Claude model offering great performance at lower cost',
+    maxTokens: 8192,
     supportsStreaming: true,
     costPer1kTokens: 0.025,
     category: 'balanced',
@@ -247,413 +188,216 @@ export const AI_MODELS: AIModel[] = [
     requiresApiKey: true,
     isLocal: false
   },
-  {
-    id: 'claude-3-long-context',
-    name: 'Claude 3 (Long Context Leader)',
-    provider: 'anthropic',
-    description: 'Claude 3 optimized for extremely long context processing',
-    maxTokens: 1000000,
-    supportsStreaming: true,
-    costPer1kTokens: 0.015,
-    category: 'reasoning',
-    icon: '📚',
-    requiresApiKey: true,
-    isLocal: false
-  },
 
-  // Google Models - Gemini 2.5, Gemma 3, PaliGemma 2 Mix, PaLM 2 family (Bison, Unicorn, etc.)
+  // Google Models - Using correct API names from LangChain reference
   {
-    id: 'gemini-2.5',
-    name: 'Gemini 2.5',
+    id: 'gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
     provider: 'google',
-    description: 'Latest Gemini with breakthrough capabilities',
-    maxTokens: 32768,
-    supportsStreaming: true,
-    costPer1kTokens: 0.006,
-    category: 'reasoning',
-    icon: '💎',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'gemma-3',
-    name: 'Gemma 3',
-    provider: 'google',
-    description: 'Advanced open-source model from Google',
+    description: 'Next-generation Gemini with massive context window',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.002,
-    category: 'balanced',
+    costPer1kTokens: 0.0125,
+    category: 'reasoning',
     icon: '🌟',
     requiresApiKey: true,
     isLocal: false
   },
   {
-    id: 'paligemma-2-mix',
-    name: 'PaliGemma 2 Mix',
+    id: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
     provider: 'google',
-    description: 'Multimodal model with vision and language capabilities',
-    maxTokens: 16384,
-    supportsStreaming: true,
-    costPer1kTokens: 0.008,
-    category: 'creative',
-    icon: '👁️',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'palm-2-bison',
-    name: 'PaLM 2 Bison',
-    provider: 'google',
-    description: 'Large language model from PaLM 2 family',
+    description: 'Fast and efficient Gemini with excellent multimodal capabilities',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.003,
-    category: 'balanced',
-    icon: '�',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'palm-2-unicorn',
-    name: 'PaLM 2 Unicorn',
-    provider: 'google',
-    description: 'Specialized PaLM 2 model with unique capabilities',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0.004,
-    category: 'creative',
-    icon: '🦄',
+    costPer1kTokens: 0.00075,
+    category: 'fast',
+    icon: '⚡',
     requiresApiKey: true,
     isLocal: false
   },
 
-  // DeepSeek Models - DeepSeek-V3.1, DeepSeek-R1 & R1-0528, DeepSeek-V3 (MoE, open source)
+  // DeepSeek Models - Using Ollama as per LangChain reference
   {
-    id: 'deepseek-v3.1',
-    name: 'DeepSeek-V3.1',
-    provider: 'deepseek',
-    description: 'Latest DeepSeek model with enhanced reasoning capabilities',
-    maxTokens: 16384,
+    id: 'deepseek-r1:latest',
+    name: 'DeepSeek-R1 Latest',
+    provider: 'ollama',
+    description: 'Latest DeepSeek-R1 model with advanced reasoning capabilities',
+    maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.002,
+    costPer1kTokens: 0.0,
     category: 'reasoning',
     icon: '🔥',
-    requiresApiKey: true,
-    isLocal: false
+    requiresApiKey: false,
+    isLocal: true
   },
   {
-    id: 'deepseek-r1',
-    name: 'DeepSeek-R1',
-    provider: 'deepseek',
-    description: 'Advanced reasoning model from DeepSeek',
+    id: 'deepseek-r1:8b',
+    name: 'DeepSeek-R1 8B',
+    provider: 'ollama',
+    description: '8B parameter version of DeepSeek-R1 for efficient local deployment',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.0015,
-    category: 'reasoning',
-    icon: '🧠',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'deepseek-r1-0528',
-    name: 'DeepSeek-R1-0528',
-    provider: 'deepseek',
-    description: 'Specialized version of DeepSeek-R1',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0.0015,
-    category: 'coding',
-    icon: '�',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'deepseek-v3-moe',
-    name: 'DeepSeek-V3 (MoE, Open Source)',
-    provider: 'deepseek',
-    description: 'Mixture of Experts model, open source variant',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0.001,
+    costPer1kTokens: 0.0,
     category: 'balanced',
-    icon: '🔓',
-    requiresApiKey: true,
-    isLocal: false
+    icon: '🔥',
+    requiresApiKey: false,
+    isLocal: true
   },
 
-  // Qwen Models - Qwen3-235B, Qwen2.5-VL/Omni, Qwen 2.5-Max (claimed GPT-4o-beater)
+  // Qwen Models - Using correct API names from LangChain reference
   {
-    id: 'qwen3-235b',
-    name: 'Qwen3-235B',
+    id: 'qwen-max',
+    name: 'Qwen Max',
     provider: 'qwen',
-    description: 'Massive 235B parameter model from Qwen',
-    maxTokens: 32768,
+    description: 'Most powerful Qwen model with advanced capabilities',
+    maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.01,
-    category: 'reasoning',
-    icon: '�️',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'qwen2.5-vl',
-    name: 'Qwen2.5-VL',
-    provider: 'qwen',
-    description: 'Vision-language multimodal model',
-    maxTokens: 16384,
-    supportsStreaming: true,
-    costPer1kTokens: 0.005,
-    category: 'creative',
-    icon: '👁️',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'qwen2.5-omni',
-    name: 'Qwen2.5-Omni',
-    provider: 'qwen',
-    description: 'Multimodal model with comprehensive capabilities',
-    maxTokens: 16384,
-    supportsStreaming: true,
-    costPer1kTokens: 0.006,
-    category: 'balanced',
-    icon: '🌐',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'qwen2.5-max',
-    name: 'Qwen 2.5-Max (GPT-4o-Beater)',
-    provider: 'qwen',
-    description: 'Claimed to surpass GPT-4o performance',
-    maxTokens: 16384,
-    supportsStreaming: true,
-    costPer1kTokens: 0.008,
+    costPer1kTokens: 0.02,
     category: 'reasoning',
     icon: '🎯',
     requiresApiKey: true,
     isLocal: false
   },
-
-  // Mistral Models - Mistral Large 2, Medium 3, Small 3.1, Devstral (coding)
   {
-    id: 'mistral-large-2',
-    name: 'Mistral Large 2',
-    provider: 'mistral',
-    description: 'Latest flagship model from Mistral AI',
+    id: 'qwen-plus',
+    name: 'Qwen Plus',
+    provider: 'qwen',
+    description: 'High-performance Qwen model for complex tasks',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.008,
+    costPer1kTokens: 0.01,
+    category: 'balanced',
+    icon: '🎯',
+    requiresApiKey: true,
+    isLocal: false
+  },
+  {
+    id: 'qwen-vl-max',
+    name: 'Qwen VL Max',
+    provider: 'qwen',
+    description: 'Vision-language model with advanced multimodal capabilities',
+    maxTokens: 8192,
+    supportsStreaming: true,
+    costPer1kTokens: 0.025,
+    category: 'creative',
+    icon: '👁️',
+    requiresApiKey: true,
+    isLocal: false
+  },
+
+  // Mistral Models - Using correct API names from LangChain reference
+  {
+    id: 'mistral-large-2411',
+    name: 'Mistral Large 2411',
+    provider: 'mistral',
+    description: 'Latest Mistral Large model with enhanced capabilities',
+    maxTokens: 8192,
+    supportsStreaming: true,
+    costPer1kTokens: 0.04,
     category: 'reasoning',
     icon: '🌪️',
     requiresApiKey: true,
     isLocal: false
   },
   {
-    id: 'mistral-medium-3',
-    name: 'Mistral Medium 3',
+    id: 'mistral-medium-2508',
+    name: 'Mistral Medium 2508',
     provider: 'mistral',
-    description: 'Balanced performance model from Mistral',
+    description: 'Balanced Mistral model for various tasks',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.004,
+    costPer1kTokens: 0.025,
     category: 'balanced',
-    icon: '⚖️',
+    icon: '🌪️',
     requiresApiKey: true,
     isLocal: false
   },
   {
-    id: 'mistral-small-3.1',
-    name: 'Mistral Small 3.1',
+    id: 'devstral-medium-2507',
+    name: 'Devstral Medium 2507',
     provider: 'mistral',
-    description: 'Efficient and cost-effective Mistral model',
-    maxTokens: 4096,
-    supportsStreaming: true,
-    costPer1kTokens: 0.002,
-    category: 'fast',
-    icon: '💨',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'devstral',
-    name: 'Devstral (Coding)',
-    provider: 'mistral',
-    description: 'Specialized coding model by Mistral AI',
+    description: 'Code-optimized Mistral model for development tasks',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.003,
+    costPer1kTokens: 0.02,
     category: 'coding',
     icon: '💻',
     requiresApiKey: true,
     isLocal: false
   },
 
-  // Grok (xAI) Models - Grok 4 & 4 Heavy (state-of-the-art), Grok 2.5 (open-sourced), Grok 3 upcoming
+  // Grok Models - Using correct API names from LangChain reference
   {
     id: 'grok-4',
-    name: 'Grok 4 (State-of-the-Art)',
+    name: 'Grok 4',
     provider: 'xai',
-    description: 'Latest state-of-the-art model from xAI',
-    maxTokens: 16384,
+    description: 'Advanced Grok model with enhanced reasoning capabilities',
+    maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.015,
+    costPer1kTokens: 0.03,
     category: 'reasoning',
     icon: '🚀',
     requiresApiKey: true,
     isLocal: false
   },
+
+  // Groq Models - High-speed inference platform
   {
-    id: 'grok-4-heavy',
-    name: 'Grok 4 Heavy',
-    provider: 'xai',
-    description: 'Heavy-duty version of Grok 4 for complex tasks',
-    maxTokens: 32768,
+    id: 'llama-3.2-90b-text-preview',
+    name: 'Llama 3.2 90B (Groq)',
+    provider: 'groq',
+    description: 'High-speed Llama 3.2 90B on Groq infrastructure',
+    maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.025,
-    category: 'reasoning',
-    icon: '💪',
+    costPer1kTokens: 0.015,
+    category: 'fast',
+    icon: '💨',
     requiresApiKey: true,
     isLocal: false
   },
   {
-    id: 'grok-2.5',
-    name: 'Grok 2.5 (Open-Sourced)',
-    provider: 'xai',
-    description: 'Open-source version of Grok 2.5',
+    id: 'llama-3.1-8b-instant',
+    name: 'Llama 3.1 8B Instant (Groq)',
+    provider: 'groq',
+    description: 'Ultra-fast Llama 3.1 8B with instant responses',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.005,
-    category: 'balanced',
-    icon: '�',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'grok-3-preview',
-    name: 'Grok 3 (Upcoming Preview)',
-    provider: 'xai',
-    description: 'Preview of upcoming Grok 3 model',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0.01,
-    category: 'creative',
-    icon: '🔮',
+    costPer1kTokens: 0.001,
+    category: 'fast',
+    icon: '⚡',
     requiresApiKey: true,
     isLocal: false
   },
 
-  // Z.ai Models - GLM-4.5, GLM-4.5V (vision-language, Huawei-optimized)
+  // Local Ollama Models - Example models for local deployment
   {
-    id: 'glm-4.5',
-    name: 'GLM-4.5',
-    provider: 'zai',
-    description: 'Advanced language model from Z.ai',
+    id: 'gpt-oss:20b',
+    name: 'GPT-OSS 20B (Local)',
+    provider: 'ollama',
+    description: 'Local open-source GPT model with 20 billion parameters via Ollama',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0.003,
+    costPer1kTokens: 0.0,
     category: 'balanced',
-    icon: '⭐',
-    requiresApiKey: true,
-    isLocal: false
-  },
-  {
-    id: 'glm-4.5v',
-    name: 'GLM-4.5V (Vision-Language, Huawei-optimized)',
-    provider: 'zai',
-    description: 'Vision-language model optimized for Huawei infrastructure',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0.005,
-    category: 'creative',
-    icon: '�️',
-    requiresApiKey: true,
-    isLocal: false
-  },
-
-  // Ollama Local Models - Model platform hosting DeepSeek, Qwen, Mistral, Gemma for local use
-  {
-    id: 'deepseek-v3.1-local',
-    name: 'DeepSeek-V3.1 (Local)',
-    provider: 'ollama',
-    description: 'DeepSeek-V3.1 running locally via Ollama',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0,
-    category: 'reasoning',
-    icon: '🔥',
+    icon: '🏠',
     requiresApiKey: false,
     isLocal: true
   },
   {
-    id: 'qwen3-local',
-    name: 'Qwen3 (Local)',
+    id: 'llama3.2:latest',
+    name: 'Llama 3.2 (Local)',
     provider: 'ollama',
-    description: 'Qwen3 model running locally via Ollama',
+    description: 'Local Llama 3.2 model via Ollama',
     maxTokens: 8192,
     supportsStreaming: true,
-    costPer1kTokens: 0,
+    costPer1kTokens: 0.0,
     category: 'balanced',
-    icon: '🎯',
-    requiresApiKey: false,
-    isLocal: true
-  },
-  {
-    id: 'mistral-large-2-local',
-    name: 'Mistral Large 2 (Local)',
-    provider: 'ollama',
-    description: 'Mistral Large 2 running locally via Ollama',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0,
-    category: 'reasoning',
-    icon: '🌪️',
-    requiresApiKey: false,
-    isLocal: true
-  },
-  {
-    id: 'gemma-3-local',
-    name: 'Gemma 3 (Local)',
-    provider: 'ollama',
-    description: 'Google Gemma 3 running locally via Ollama',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0,
-    category: 'balanced',
-    icon: '�',
-    requiresApiKey: false,
-    isLocal: true
-  },
-  {
-    id: 'devstral-local',
-    name: 'Devstral (Local)',
-    provider: 'ollama',
-    description: 'Mistral Devstral coding model running locally',
-    maxTokens: 8192,
-    supportsStreaming: true,
-    costPer1kTokens: 0,
-    category: 'coding',
-    icon: '�',
+    icon: '🏠',
     requiresApiKey: false,
     isLocal: true
   }
 ]
-
-export const DEFAULT_MODEL = 'gpt-4.1-mini'
-
-export function getModelsByCategory(category: AIModel['category']): AIModel[] {
-  return AI_MODELS.filter(model => model.category === category)
-}
-
-export function getModelsByProvider(provider: string): AIModel[] {
-  return AI_MODELS.filter(model => model.provider === provider)
-}
-
-export function getAvailableModels(): AIModel[] {
-  // Return all models - let the UI handle API key availability
-  return AI_MODELS
-}
 
 export function isModelAvailable(model: AIModel): boolean {
   if (!model.requiresApiKey) return true
@@ -686,10 +430,21 @@ export function isModelAvailable(model: AIModel): boolean {
   }
 }
 
+export function getAvailableModels(): AIModel[] {
+  return AI_MODELS.filter(isModelAvailable)
+}
+
+export function getModelsByProvider(provider: string): AIModel[] {
+  return AI_MODELS.filter(model => model.provider === provider)
+}
+
+export function getModelsByCategory(category: AIModel['category']): AIModel[] {
+  return AI_MODELS.filter(model => model.category === category)
+}
+
 export function getModelById(id: string): AIModel | undefined {
   return AI_MODELS.find(model => model.id === id)
 }
 
-export function getProviderById(id: string): ModelProvider | undefined {
-  return MODEL_PROVIDERS.find(provider => provider.id === id)
-}
+// Default model for testing - set to your local Ollama model
+export const DEFAULT_MODEL = 'gpt-oss:20b'
