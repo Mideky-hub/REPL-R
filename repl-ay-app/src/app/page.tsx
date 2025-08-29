@@ -74,7 +74,7 @@ export default function Home() {
     setShowPricingModal(true)
   }, [])
 
-  const handleSelectTier = useCallback((tier: UserTier) => {
+  const handleSelectTier = useCallback((tier: string) => {
     // In a real app, this would trigger the upgrade process
     // For now, just close the modal
     setShowPricingModal(false)
@@ -410,7 +410,9 @@ export default function Home() {
           onClose={() => setShowPricingModal(false)}
           onSelectTier={handleSelectTier}
           currentTier={userTier}
-          blockedFeature={blockedFeature}
+          userId={user?.id}
+          userEmail={user?.email}
+          targetFeature={blockedFeature}
         />
       )}
     </div>

@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Sparkles, User, Bot, LogIn, MessageCircle, Grid3X3, Plus, X, Settings, Search } from 'lucide-react'
 import { ChatMessage, ChatMode, ParallelChatInstance } from '@/types'
@@ -53,6 +55,7 @@ export function ChatInterface({
   onUpgrade
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -67,6 +70,9 @@ export function ChatInterface({
     
     onSendMessage(input.trim(), { modelId: selectedModel })
     setInput('')
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '48px'
+    }
   }
 
   const handleSuggestedPrompt = (prompt: string) => {
@@ -88,9 +94,20 @@ export function ChatInterface({
     onModeChange?.('parallel')
   }
 
+  // Some providers escape Markdown special chars. Unescape a subset so ReactMarkdown can render.
+  const unescapeMarkdown = (text: string) =>
+    text.replace(/\\([*_`~#>\-+])/g, '$1')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+
   return (
-    <div className="min-h-screen pt-24 pb-8 px-8">
+    <div className="min-h-screen pt-24 pb-24 px-4 md:px-8">
       <div className="max-w-6xl mx-auto">
+        {/* Top deflection for readability under any fixed nav */}
+        <div className="top-blur-overlay" aria-hidden="true" />
         {/* Chat Mode Toggle - Bottom Right */}
         {onModeChange && (
           <div className="fixed bottom-6 right-6 z-50">
@@ -196,14 +213,14 @@ export function ChatInterface({
             ) : (
               // Messages Display
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8 max-h-[60vh] overflow-y-auto space-y-4 px-2"
+                className="mb-1 space-y-3 px-2 pr-1 pb-24"
               >
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
                       'flex gap-3 items-start',
@@ -224,9 +241,11 @@ export function ChatInterface({
                           : 'bg-white/40 text-enhanced-contrast'
                       )}
                     >
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {message.content}
-                      </p>
+                      <div className="markdown-body text-sm leading-relaxed">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {unescapeMarkdown(message.content)}
+                        </ReactMarkdown>
+                      </div>
                       <span className="text-xs text-enhanced opacity-60 mt-2 block">
                         {message.timestamp.toLocaleTimeString()}
                       </span>
@@ -286,57 +305,56 @@ export function ChatInterface({
               </motion.div>
             )}
 
-            {/* Input Form - Fixed positioning with proper animations */}
-            <motion.div
-              initial={{ opacity: 1, y: 0 }}
-              animate={{ 
-                position: messages.length > 0 ? 'fixed' : 'static',
-                bottom: messages.length > 0 ? '2rem' : 'auto',
-                left: messages.length > 0 ? '50%' : 'auto',
-                x: messages.length > 0 ? '-50%' : 0,
-                zIndex: messages.length > 0 ? 40 : 'auto',
-                maxWidth: messages.length > 0 ? '600px' : '1024px',
-                width: messages.length > 0 ? 'calc(100vw - 4rem)' : '100%'
-              }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 260, 
-                damping: 20,
-                duration: 0.6
-              }}
-              className={messages.length === 0 ? "max-w-4xl mx-auto space-y-4" : "space-y-4"}
-            >
-              {/* Model Selector */}
-              <div className="w-full max-w-sm mx-auto">
-                <ModelSelector 
-                  selectedModel={selectedModel}
-                  onModelChange={setSelectedModel}
-                  isLoading={isLoading}
-                />
-              </div>
+            {/* Bottom deflection overlay so messages don't visually crash into composer */}
+            {messages.length > 0 && <div className="bottom-blur-overlay" aria-hidden="true" />}
 
-              <motion.form
-                onSubmit={handleSubmit}
-                className="w-full"
-              >
-                <div className="glass rounded-2xl p-2 shadow-lg">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Ask R; anything..."
-                      className="flex-1 bg-transparent text-enhanced-contrast placeholder-amber-600 border-none outline-none text-lg"
-                      disabled={isLoading || (!isAuthenticated && messagesLeft <= 0)}
-                    />
+            {/* Input Form - Compact, inline model selector + textarea */}
+            <div className={cn(
+              'fixed left-1/2 -translate-x-1/2 bottom-2 w-[calc(100vw-2rem)] max-w-3xl z-40'
+            )}>
+              <form onSubmit={handleSubmit} className="w-full">
+                <div className="glass rounded-2xl px-2 py-1.5 shadow-lg">
+                  <div className="flex items-start gap-2">
+                    {/* Model selector inline to the left on md+, stacked on mobile */}
+                    <div className="hidden md:block w-52 flex-shrink-0">
+                      <ModelSelector 
+                        selectedModel={selectedModel}
+                        onModelChange={setSelectedModel}
+                        isLoading={isLoading}
+                        compact
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <textarea
+                        ref={textareaRef}
+                        value={input}
+                        onChange={(e) => {
+                          setInput(e.target.value)
+                          if (textareaRef.current) {
+                            textareaRef.current.style.height = 'auto'
+                            const next = Math.min(200, textareaRef.current.scrollHeight)
+                            textareaRef.current.style.height = `${next}px`
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault()
+                            if (input.trim()) handleSubmit(e as unknown as React.FormEvent)
+                          }
+                        }}
+                        placeholder="Write your message in Markdown... (Shift+Enter for newline)"
+                        className="w-full bg-transparent text-enhanced-contrast placeholder-amber-600 border-none outline-none text-base resize-none leading-relaxed min-h-[44px]"
+                        disabled={isLoading || (!isAuthenticated && messagesLeft <= 0)}
+                      />
+                    </div>
                     <motion.button
                       type="submit"
                       disabled={!input.trim() || isLoading || (!isAuthenticated && messagesLeft <= 0)}
                       className={cn(
-                        "p-3 rounded-xl transition-all",
+                        'p-3 rounded-xl transition-all flex-shrink-0',
                         input.trim() && !isLoading && (isAuthenticated || messagesLeft > 0)
-                          ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg"
-                          : "bg-white/10 text-enhanced cursor-not-allowed"
+                          ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg'
+                          : 'bg-white/10 text-enhanced cursor-not-allowed'
                       )}
                       whileHover={input.trim() && !isLoading ? { scale: 1.05 } : undefined}
                       whileTap={input.trim() && !isLoading ? { scale: 0.95 } : undefined}
@@ -344,9 +362,18 @@ export function ChatInterface({
                       <Send size={20} />
                     </motion.button>
                   </div>
+                  {/* Mobile: model selector below textarea for compactness */}
+                  <div className="mt-1 md:hidden">
+                    <ModelSelector 
+                      selectedModel={selectedModel}
+                      onModelChange={setSelectedModel}
+                      isLoading={isLoading}
+                      compact
+                    />
+                  </div>
                 </div>
-              </motion.form>
-            </motion.div>
+              </form>
+            </div>
           </>
         ) : (
           // Parallel Chat Mode
@@ -439,7 +466,11 @@ export function ChatInterface({
                             : 'bg-white/10 text-enhanced-contrast mr-4'
                         )}
                       >
-                        <p className="whitespace-pre-wrap">{message.content}</p>
+                        <div className="markdown-body">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
                       </div>
                     ))}
                     

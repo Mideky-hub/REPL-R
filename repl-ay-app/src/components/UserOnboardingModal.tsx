@@ -203,7 +203,7 @@ export default function UserOnboardingModal({
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => updateFormData('firstName', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                   placeholder="John"
                 />
               </div>
@@ -215,7 +215,7 @@ export default function UserOnboardingModal({
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => updateFormData('lastName', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                   placeholder="Smith"
                 />
               </div>
@@ -228,7 +228,7 @@ export default function UserOnboardingModal({
                 type="text"
                 value={formData.jobTitle}
                 onChange={(e) => updateFormData('jobTitle', e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                 placeholder="Software Engineer, Marketing Manager, CEO, etc."
               />
             </div>
@@ -246,7 +246,7 @@ export default function UserOnboardingModal({
                 type="text"
                 value={formData.company}
                 onChange={(e) => updateFormData('company', e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                 placeholder="Acme Corp, Freelancer, etc."
               />
             </div>
@@ -257,7 +257,7 @@ export default function UserOnboardingModal({
               <select
                 value={formData.companySize}
                 onChange={(e) => updateFormData('companySize', e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
               >
                 <option value="">Select company size</option>
                 {COMPANY_SIZES.map((size) => (
@@ -274,7 +274,7 @@ export default function UserOnboardingModal({
               <select
                 value={formData.industry}
                 onChange={(e) => updateFormData('industry', e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
               >
                 <option value="">Select your industry</option>
                 {INDUSTRIES.map((industry) => (
@@ -297,7 +297,7 @@ export default function UserOnboardingModal({
               <select
                 value={formData.hearAboutUs}
                 onChange={(e) => updateFormData('hearAboutUs', e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
               >
                 <option value="">Select source</option>
                 {REFERRAL_SOURCES.map((source) => (
@@ -314,7 +314,7 @@ export default function UserOnboardingModal({
               <select
                 value={formData.primaryUseCase}
                 onChange={(e) => updateFormData('primaryUseCase', e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
               >
                 <option value="">What will you use R; for?</option>
                 {USE_CASES.map((useCase) => (
@@ -331,7 +331,7 @@ export default function UserOnboardingModal({
               <select
                 value={formData.experienceLevel}
                 onChange={(e) => updateFormData('experienceLevel', e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
               >
                 <option value="">Select your experience level</option>
                 {EXPERIENCE_LEVELS.map((level) => (

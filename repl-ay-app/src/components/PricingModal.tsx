@@ -1,291 +1,296 @@
-'use client'
+﻿'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Check, Sparkles, Zap, Crown, Rocket } from 'lucide-react'
-import { UserTier } from '@/types'
+import { 
+  X, 
+  Check, 
+  Star, 
+  Zap, 
+  Crown, 
+  Loader2,
+  CreditCard,
+  Shield,
+  Sparkles
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PRICING_PLANS, createCheckoutSession, redirectToCheckout, formatPrice, type PricingPlan } from '@/lib/stripe'
 
 interface PricingModalProps {
   isOpen: boolean
   onClose: () => void
-  onSelectTier: (tier: UserTier) => void
-  currentTier: UserTier
-  blockedFeature?: string
+  currentTier?: string
+  userId?: string
+  userEmail?: string
+  targetFeature?: string // Feature that triggered the upgrade modal
+  onSelectTier?: (tier: string) => void // Keep for backward compatibility
 }
 
-const pricingTiers = [
-  {
-    id: 'free' as UserTier,
-    name: 'Free',
-    price: 0,
-    interval: 'month',
-    icon: Sparkles,
-    color: 'from-blue-500 to-cyan-500',
-    features: [
-      '50 messages per day',
-      'Basic chat interface',
-      'Prompt Studio access',
-      'Community support',
-      'Mobile responsive'
-    ],
-    limits: {
-      messagesPerDay: 50,
-      parallelChats: 1,
-      agentCrews: 0,
-      executions: 0
-    }
-  },
-  {
-    id: 'essential' as UserTier,
-    name: 'Essential',
-    price: 12,
-    interval: 'month',
-    icon: Zap,
-    color: 'from-amber-500 to-orange-500',
-    popular: true,
-    features: [
-      'Unlimited messages',
-      'Parallel chat mode (up to 3)',
-      'Deep research toggle',
-      'Advanced prompt analysis',
-      'Priority support',
-      'Export conversations'
-    ],
-    limits: {
-      messagesPerDay: -1, // unlimited
-      parallelChats: 3,
-      agentCrews: 0,
-      executions: 0
-    }
-  },
-  {
-    id: 'developer' as UserTier,
-    name: 'Developer',
-    price: 39,
-    interval: 'month',
-    icon: Crown,
-    color: 'from-purple-500 to-pink-500',
-    features: [
-      'Everything in Essential',
-      'Agent Crew Studio',
-      'Up to 10 parallel chats',
-      'Workflow automation',
-      'API access',
-      'Custom integrations',
-      'Advanced analytics'
-    ],
-    limits: {
-      messagesPerDay: -1,
-      parallelChats: 10,
-      agentCrews: 5,
-      executions: 1000
-    }
-  },
-  {
-    id: 'founder' as UserTier,
-    name: 'Founder',
-    price: 99,
-    interval: 'month',
-    icon: Rocket,
-    color: 'from-emerald-500 to-teal-500',
-    features: [
-      'Everything in Developer',
-      'Unlimited agent crews',
-      'Unlimited parallel chats',
-      'White-label options',
-      'Dedicated support',
-      'Early access to features',
-      'Revenue sharing program'
-    ],
-    limits: {
-      messagesPerDay: -1,
-      parallelChats: -1,
-      agentCrews: -1,
-      executions: -1
-    }
-  }
-]
+const PLAN_ICONS = {
+  free: Sparkles,
+  essential: Star,
+  developer: Zap,
+  founder: Crown
+}
 
-function PricingModal({ 
+const PLAN_COLORS = {
+  free: 'from-blue-500 to-cyan-500',
+  essential: 'from-yellow-400 to-orange-500',
+  developer: 'from-purple-500 to-pink-500',
+  founder: 'from-emerald-500 to-teal-500'
+}
+
+export function PricingModal({ 
   isOpen, 
   onClose, 
-  onSelectTier, 
-  currentTier, 
-  blockedFeature 
+  currentTier = 'curious', 
+  userId, 
+  userEmail,
+  targetFeature,
+  onSelectTier // Backward compatibility
 }: PricingModalProps) {
-  if (!isOpen) return null
+  const [loading, setLoading] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleUpgrade = async (plan: PricingPlan) => {
+    if (!userId || !userEmail) {
+      setError('Please sign in to upgrade your account')
+      return
+    }
+
+    if (plan.id === 'free') {
+      // Free plan - use legacy callback if available
+      onSelectTier?.('free')
+      onClose()
+      return
+    }
+
+    setLoading(plan.id)
+    setError(null)
+
+    try {
+      const session = await createCheckoutSession(plan.id, userId, userEmail)
+      await redirectToCheckout(session.sessionId)
+    } catch (err) {
+      console.error('Upgrade error:', err)
+      setError('Failed to start upgrade process. Please try again.')
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const isCurrentPlan = (planId: string) => {
+    if (planId === 'free' && currentTier === 'curious') return true
+    if (planId === 'essential' && currentTier === 'essential') return true
+    if (planId === 'developer' && currentTier === 'developer') return true
+    if (planId === 'founder' && currentTier === 'founder') return true
+    return false
+  }
+
+  const shouldHighlightPlan = (planId: string) => {
+    // Highlight based on target feature
+    if (targetFeature === 'premium_models') return planId === 'essential'
+    if (targetFeature === 'unlimited_messages') return planId === 'developer'
+    if (targetFeature === 'all_models') return planId === 'founder'
+    
+    // Default highlight
+    return planId === 'developer'
+  }
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-gradient-to-br from-green-50/90 via-emerald-50/85 to-teal-50/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-green-200/60"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="p-6 border-b border-green-200/40 bg-gradient-to-r from-green-50/80 to-emerald-50/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-800">
-                  Upgrade Your R; Experience
-                </h2>
-                {blockedFeature && (
-                  <p className="text-gray-600 mt-2">
-                    <span className="font-semibold text-orange-600">&quot;{blockedFeature}&quot;</span> requires a premium plan
-                  </p>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            onClick={onClose}
+          />
+          
+          {/* Modal Content */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-6xl max-h-[95vh] overflow-hidden"
+          >
+            <div className="bg-white rounded-3xl shadow-2xl">
+              {/* Header */}
+              <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                      <Crown className="text-amber-600" />
+                      Upgrade Your Experience
+                    </h2>
+                    <p className="text-gray-600">
+                      {targetFeature ? 
+                        'Unlock premium features and get more from R; AI' : 
+                        'Choose the perfect plan for your AI needs'}
+                    </p>
+                  </div>
+                  <motion.button
+                    onClick={onClose}
+                    className="p-3 rounded-full bg-white shadow-sm hover:shadow-md transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <X size={24} className="text-gray-600" />
+                  </motion.button>
+                </div>
+
+                {targetFeature && (
+                  <div className="bg-amber-100 border border-amber-200 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-2 text-amber-800">
+                      <Zap size={20} />
+                      <span className="font-semibold">
+                        {targetFeature === 'premium_models' && 'Premium Models Required'}
+                        {targetFeature === 'unlimited_messages' && 'Unlimited Messages Required'}
+                        {targetFeature === 'all_models' && 'Enterprise Features Required'}
+                      </span>
+                    </div>
+                    <p className="text-amber-700 text-sm mt-2">
+                      {targetFeature === 'premium_models' && 'Access GPT-4o and Claude 3.5 Sonnet with a Pro subscription'}
+                      {targetFeature === 'unlimited_messages' && 'Remove daily message limits with a Pro subscription'}
+                      {targetFeature === 'all_models' && 'Access all available models with an Enterprise subscription'}
+                    </p>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="bg-red-100 border border-red-200 rounded-xl p-4 mb-4">
+                    <p className="text-red-800 text-sm">{error}</p>
+                  </div>
                 )}
               </div>
-              <motion.button
-                onClick={onClose}
-                className="p-2 rounded-xl hover:bg-green-100/60 transition-colors text-gray-600"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <X size={24} />
-              </motion.button>
-            </div>
-          </div>
 
-          {/* Pricing Tiers */}
-          <div className="p-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {pricingTiers.map((tier, index) => {
-                const Icon = tier.icon
-                const isCurrentTier = currentTier === tier.id
-                const isUpgrade = currentTier === 'curious' || 
-                  (currentTier === 'free' && tier.id !== 'free') ||
-                  (currentTier === 'essential' && ['developer', 'founder'].includes(tier.id)) ||
-                  (currentTier === 'developer' && tier.id === 'founder')
+              {/* Pricing Cards */}
+              <div className="p-8 bg-gray-50 max-h-[60vh] overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                  {PRICING_PLANS.map((plan) => {
+                    const PlanIcon = PLAN_ICONS[plan.id as keyof typeof PLAN_ICONS] || Star
+                    const isHighlighted = shouldHighlightPlan(plan.id)
+                    const isCurrent = isCurrentPlan(plan.id)
+                    const isLoading = loading === plan.id
+                    
+                    return (
+                      <motion.div
+                        key={plan.id}
+                        className={cn(
+                          'relative rounded-2xl border-2 bg-white overflow-hidden transition-all',
+                          isHighlighted 
+                            ? 'border-amber-300 shadow-lg shadow-amber-500/20 scale-105' 
+                            : 'border-gray-200 hover:border-gray-300',
+                          isCurrent && 'ring-2 ring-green-500'
+                        )}
+                        whileHover={!isCurrent ? { y: -4 } : undefined}
+                        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                      >
+                        {/* Popular Badge */}
+                        {isHighlighted && (
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                              Recommended
+                            </div>
+                          </div>
+                        )}
 
-                return (
-                  <motion.div
-                    key={tier.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className={cn(
-                      'relative rounded-2xl p-6 border-2 transition-all',
-                      isCurrentTier 
-                        ? 'border-green-400 bg-green-50/80' 
-                        : 'border-gray-200/60 bg-white/80 hover:border-green-300 hover:bg-green-50/40',
-                      tier.popular && 'ring-2 ring-green-400 ring-offset-2 ring-offset-transparent'
-                    )}
-                  >
-                    {tier.popular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                          Most Popular
-                        </span>
-                      </div>
-                    )}
+                        {/* Current Plan Badge */}
+                        {isCurrent && (
+                          <div className="absolute top-4 right-4">
+                            <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                              Current Plan
+                            </div>
+                          </div>
+                        )}
 
-                    {/* Tier Header */}
-                    <div className="text-center mb-6">
-                      <div className={cn('w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br flex items-center justify-center', tier.color)}>
-                        <Icon className="text-white" size={32} />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        {tier.name}
-                      </h3>
-                      <div className="mb-4">
-                        <span className="text-4xl font-bold text-gray-800">
-                          ${tier.price}
-                        </span>
-                        <span className="text-gray-600">/{tier.interval}</span>
-                      </div>
-                    </div>
+                        <div className="p-6">
+                          {/* Plan Header */}
+                          <div className="text-center mb-6">
+                            <div className={cn(
+                              'w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br',
+                              PLAN_COLORS[plan.id as keyof typeof PLAN_COLORS]
+                            )}>
+                              <PlanIcon size={24} className="text-white" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">{plan.name}</h3>
+                            <div className="mb-2">
+                              <span className="text-3xl font-bold text-gray-900">
+                                {plan.price === 0 ? 'Free' : formatPrice(plan.price, plan.interval)}
+                              </span>
+                              {plan.price > 0 && (
+                                <span className="text-gray-600 text-sm ml-1">
+                                  {plan.interval === 'year' ? '/year' : '/month'}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-600 text-sm">{plan.description}</p>
+                          </div>
 
-                    {/* Features */}
-                    <ul className="space-y-3 mb-6">
-                      {tier.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-start space-x-2">
-                          <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                          {/* Features */}
+                          <div className="space-y-3 mb-6">
+                            {plan.features.map((feature, index) => (
+                              <div key={index} className="flex items-start space-x-3">
+                                <Check size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-gray-700 text-sm">{feature}</span>
+                              </div>
+                            ))}
+                          </div>
 
-                    {/* CTA Button */}
-                    <motion.button
-                      onClick={() => onSelectTier(tier.id)}
-                      disabled={isCurrentTier}
-                      className={cn(
-                        'w-full py-3 rounded-xl font-semibold transition-all',
-                        isCurrentTier
-                          ? 'bg-green-100 text-green-700 cursor-default'
-                          : isUpgrade
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 shadow-lg'
-                          : 'bg-white/50 text-gray-700 hover:bg-white/70 border border-gray-200'
-                      )}
-                      whileHover={!isCurrentTier ? { scale: 1.02 } : undefined}
-                      whileTap={!isCurrentTier ? { scale: 0.98 } : undefined}
-                    >
-                      {isCurrentTier ? 'Current Plan' : `Choose ${tier.name}`}
-                    </motion.button>
-                  </motion.div>
-                )
-              })}
-            </div>
+                          {/* Action Button */}
+                          <motion.button
+                            onClick={() => handleUpgrade(plan)}
+                            disabled={isCurrent || isLoading}
+                            className={cn(
+                              'w-full py-3 px-4 rounded-xl font-semibold transition-all flex items-center justify-center space-x-2',
+                              isCurrent
+                                ? 'bg-green-100 text-green-700 cursor-not-allowed'
+                                : isHighlighted
+                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 shadow-lg'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            )}
+                            whileHover={!isCurrent && !isLoading ? { scale: 1.02 } : undefined}
+                            whileTap={!isCurrent && !isLoading ? { scale: 0.98 } : undefined}
+                          >
+                            {isLoading ? (
+                              <>
+                                <Loader2 size={20} className="animate-spin" />
+                                <span>Processing...</span>
+                              </>
+                            ) : isCurrent ? (
+                              <>
+                                <Check size={20} />
+                                <span>Current Plan</span>
+                              </>
+                            ) : (
+                              <>
+                                <CreditCard size={20} />
+                                <span>{plan.buttonText}</span>
+                              </>
+                            )}
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
 
-            {/* Features Comparison */}
-            <div className="mt-8 p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/60">
-              <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
-                Feature Comparison
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-200/40">
-                      <th className="text-left py-3 px-4 text-gray-800 font-semibold">Feature</th>
-                      {pricingTiers.map(tier => (
-                        <th key={tier.id} className="text-center py-3 px-4 text-gray-800 font-semibold">
-                          {tier.name}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-gray-200/30">
-                      <td className="py-3 px-4 text-gray-700">Messages per day</td>
-                      {pricingTiers.map(tier => (
-                        <td key={tier.id} className="text-center py-3 px-4 text-gray-600">
-                          {tier.limits.messagesPerDay === -1 ? '∞' : tier.limits.messagesPerDay}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr className="border-b border-gray-200/30">
-                      <td className="py-3 px-4 text-gray-700">Parallel chats</td>
-                      {pricingTiers.map(tier => (
-                        <td key={tier.id} className="text-center py-3 px-4 text-gray-600">
-                          {tier.limits.parallelChats === -1 ? '∞' : tier.limits.parallelChats}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr className="border-b border-gray-200/30">
-                      <td className="py-3 px-4 text-gray-700">Agent crews</td>
-                      {pricingTiers.map(tier => (
-                        <td key={tier.id} className="text-center py-3 px-4 text-gray-600">
-                          {tier.limits.agentCrews === -1 ? '∞' : tier.limits.agentCrews}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
+                {/* Security Note */}
+                <div className="mt-8 text-center">
+                  <div className="flex items-center justify-center space-x-2 text-gray-500 text-sm">
+                    <Shield size={16} />
+                    <span>Secure payment powered by Stripe • Cancel anytime</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
-      </motion.div>
+          </motion.div>
+        </>
+      )}
     </AnimatePresence>
   )
 }

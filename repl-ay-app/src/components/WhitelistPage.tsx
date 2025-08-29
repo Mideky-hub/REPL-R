@@ -192,7 +192,7 @@ export function WhitelistPage({ onClose }: WhitelistPageProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-enhanced-contrast placeholder-white/40 focus:outline-none focus:border-amber-500/50 focus:bg-white/15 transition-all"
+                  className="w-full px-4 py-3 bg-white/10 border border-gray-200 rounded-lg text-enhanced-contrast placeholder-black/40 focus:outline-none focus:border-amber-500/50 focus:bg-white/15 transition-all"
                   disabled={isSubmitting}
                 />
                 

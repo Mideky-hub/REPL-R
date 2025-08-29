@@ -135,17 +135,17 @@ export default function UserProfileDropdown() {
 
             {/* Menu Items */}
             <div className="py-2">
-              <button className="w-full px-4 py-2 text-left text-sm text-white/90 hover:bg-white/20 transition-colors flex items-center space-x-3 hover:text-white">
+              <button className="w-full px-4 py-2 text-left text-sm text-black/90 hover:bg-white/20 transition-colors flex items-center space-x-3 hover:text-white">
                 <User className="w-4 h-4" />
                 <span>Profile Settings</span>
               </button>
               
-              <button className="w-full px-4 py-2 text-left text-sm text-white/90 hover:bg-white/20 transition-colors flex items-center space-x-3 hover:text-white">
+              <button className="w-full px-4 py-2 text-left text-sm text-black/90 hover:bg-white/20 transition-colors flex items-center space-x-3 hover:text-white">
                 <BarChart3 className="w-4 h-4" />
                 <span>Usage & Analytics</span>
               </button>
-              
-              <button className="w-full px-4 py-2 text-left text-sm text-white/90 hover:bg-white/20 transition-colors flex items-center space-x-3 hover:text-white">
+
+              <button className="w-full px-4 py-2 text-left text-sm text-black/90 hover:bg-white/20 transition-colors flex items-center space-x-3 hover:text-white">
                 <Settings className="w-4 h-4" />
                 <span>Account Settings</span>
               </button>
