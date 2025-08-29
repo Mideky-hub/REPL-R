@@ -1,0 +1,13 @@
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function POST(request: NextRequest) {
+  console.log('⚠️  WEBHOOK TEMPORARILY DISABLED FOR TESTING')
+  
+  // TODO: Remove this when webhooks are properly configured
+  return NextResponse.json({ 
+    received: true, 
+    message: 'Webhook disabled for testing - payments will work but subscription status won\'t update automatically' 
+  })
+  
+  // ... rest of webhook code commented out for testing
+}

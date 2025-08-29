@@ -1,0 +1,22 @@
+{
+  "name": "R; - AI Agent Crew Studio",
+  "short_name": "R;",
+  "description": "Build, deploy, and manage production-grade AI agent crews with visual workflows",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FEFAE0",
+  "theme_color": "#D4A373",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/apple-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "apple-touch-icon"
+    }
+  ]
+}

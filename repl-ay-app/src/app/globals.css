@@ -1,0 +1,223 @@
+@import "tailwindcss";
+
+body {
+  background: linear-gradient(-45deg, #CCD5AE, #E9EDC9, #FEFAE0, #FAEDCD, #D4A373, #CCD5AE);
+  background-size: 400% 400%;
+  animation: gradient 20s ease infinite;
+  color: #4A4A4A;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(254, 250, 224, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 163, 115, 0.6);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 163, 115, 0.8);
+}
+
+/* Glass morphism utility classes */
+.glass {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(254, 250, 224, 0.35);
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  box-shadow: 0 8px 32px rgba(212, 163, 115, 0.15);
+}
+
+.glass-dark {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(204, 213, 174, 0.25);
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  box-shadow: 0 8px 32px rgba(74, 74, 74, 0.15);
+}
+
+/* Navigation blur effect */
+.nav-blur-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(
+    to bottom,
+    rgba(254, 250, 224, 0.8) 0%,
+    rgba(254, 250, 224, 0.6) 50%,
+    rgba(254, 250, 224, 0.0) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* Bottom blur/deflection overlay for composers or fixed footers */
+.bottom-blur-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  background: linear-gradient(
+    to top,
+    rgba(254, 250, 224, 0.85) 0%,
+    rgba(254, 250, 224, 0.55) 50%,
+    rgba(254, 250, 224, 0.0) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
+  z-index: 35;
+}
+
+/* Optional top deflection overlay when needed inside pages */
+.top-blur-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    rgba(254, 250, 224, 0.85) 0%,
+    rgba(254, 250, 224, 0.55) 60%,
+    rgba(254, 250, 224, 0.0) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+  z-index: 35;
+}
+
+/* Enhanced text readability */
+.text-enhanced {
+  text-shadow: 0 1px 2px rgba(74, 74, 74, 0.1), 0 2px 4px rgba(204, 213, 174, 0.2);
+  color: #3A3A3A;
+}
+
+.text-enhanced-light {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(254, 250, 224, 0.6);
+  color: #2A2A2A;
+}
+
+.text-enhanced-contrast {
+  text-shadow: 
+    0 1px 2px rgba(74, 74, 74, 0.3),
+    0 2px 4px rgba(204, 213, 174, 0.2),
+    0 0 8px rgba(254, 250, 224, 0.4);
+  color: #1A1A1A;
+  font-weight: 500;
+}
+
+/* Gradient button utilities */
+.gradient-button {
+  background: linear-gradient(135deg, #D4A373 0%, #FAEDCD 50%, #CCD5AE 100%);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-button:hover {
+  background: linear-gradient(135deg, #C89968 0%, #F5E8C2 50%, #C1CA9F 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(212, 163, 115, 0.3);
+}
+
+/* Lightweight Markdown defaults for chat bubbles */
+.markdown-body {
+  line-height: 1.6;
+  word-break: break-word;
+}
+.markdown-body p {
+  margin: 0.25rem 0;
+}
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  margin: 0.75rem 0 0.5rem;
+  font-weight: 700;
+}
+.markdown-body h1 { font-size: 1.25rem; }
+.markdown-body h2 { font-size: 1.15rem; }
+.markdown-body h3 { font-size: 1.05rem; }
+.markdown-body h4 { font-size: 1rem; }
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+}
+.markdown-body li {
+  margin: 0.15rem 0;
+}
+.markdown-body a {
+  color: #b45309; /* amber-700 */
+  text-decoration: underline;
+}
+.markdown-body code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9em;
+}
+.markdown-body pre {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow: auto;
+  margin: 0.5rem 0;
+}
+.markdown-body pre code {
+  background: transparent;
+  padding: 0;
+}
+.markdown-body blockquote {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid rgba(180,83,9,0.45); /* amber-700 at low alpha */
+  background: rgba(253,230,138,0.15); /* amber-300 tint */
+}
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  margin: 0.75rem 0;
+}
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+}
+.markdown-body th,
+.markdown-body td {
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding: 0.4rem 0.5rem;
+  text-align: left;
+}
