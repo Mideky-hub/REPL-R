@@ -36,6 +36,7 @@ interface ModelSelectorProps {
   onModelChange: (modelId: string) => void
   isLoading?: boolean
   showProviderInfo?: boolean
+  compact?: boolean
 }
 
 const CATEGORY_ICONS = {
@@ -71,7 +72,8 @@ export function ModelSelector({
   selectedModel, 
   onModelChange, 
   isLoading = false,
-  showProviderInfo = true 
+  showProviderInfo = true,
+  compact = false
 }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [availableModels, setAvailableModels] = useState<AIModel[]>([])
@@ -427,39 +429,44 @@ export function ModelSelector({
         onClick={() => setIsOpen(!isOpen)}
         disabled={isLoading}
         className={cn(
-          'w-full flex items-center justify-between p-4 rounded-2xl glass transition-all border',
-          'hover:bg-white/10 text-enhanced-contrast shadow-lg',
+          'w-full flex items-center justify-between transition-all border glass',
+          compact ? 'p-2 rounded-lg shadow-md' : 'p-4 rounded-2xl shadow-lg',
+          'hover:bg-white/10 text-enhanced-contrast',
           isLoading && 'opacity-50 cursor-not-allowed',
           isOpen && 'bg-white/10 border-amber-500/30'
         )}
         whileHover={!isLoading ? { scale: 1.01, y: -1 } : undefined}
         whileTap={!isLoading ? { scale: 0.99 } : undefined}
       >
-        <div className="flex items-center space-x-4">
+        <div className={cn('flex items-center', compact ? 'space-x-2' : 'space-x-4')}>
           {selectedModelData ? (
             <>
-              <span className="text-2xl">{selectedModelData.icon}</span>
+              <span className={cn(compact ? 'text-lg' : 'text-2xl')}>{selectedModelData.icon}</span>
               <div className="text-left">
-                <div className="font-bold text-lg">{selectedModelData.name}</div>
-                <div className="text-sm text-enhanced opacity-70 flex items-center space-x-2">
-                  <span>{selectedModelData.provider.charAt(0).toUpperCase() + selectedModelData.provider.slice(1)}</span>
-                  <span>•</span>
-                  <span className="capitalize">{selectedModelData.category}</span>
-                  {selectedModelData.isLocal && (
-                    <>
-                      <span>•</span>
-                      <span className="text-green-400">Local</span>
-                    </>
-                  )}
-                </div>
+                <div className={cn('font-bold', compact ? 'text-sm' : 'text-lg')}>{selectedModelData.name}</div>
+                {!compact && (
+                  <div className="text-sm text-enhanced opacity-70 flex items-center space-x-2">
+                    <span>{selectedModelData.provider.charAt(0).toUpperCase() + selectedModelData.provider.slice(1)}</span>
+                    <span>•</span>
+                    <span className="capitalize">{selectedModelData.category}</span>
+                    {selectedModelData.isLocal && (
+                      <>
+                        <span>•</span>
+                        <span className="text-green-400">Local</span>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           ) : (
             <>
-              <Settings size={24} />
+              <Settings size={compact ? 18 : 24} />
               <div className="text-left">
-                <div className="font-bold">Select AI Model</div>
-                <div className="text-sm text-enhanced opacity-70">Choose your preferred AI</div>
+                <div className={cn('font-bold', compact ? 'text-sm' : '')}>Select AI Model</div>
+                {!compact && (
+                  <div className="text-sm text-enhanced opacity-70">Choose your preferred AI</div>
+                )}
               </div>
             </>
           )}
@@ -470,7 +477,7 @@ export function ModelSelector({
           transition={{ duration: 0.2 }}
           className="ml-2"
         >
-          <ChevronDown size={24} />
+          <ChevronDown size={compact ? 18 : 24} />
         </motion.div>
       </motion.button>
 
