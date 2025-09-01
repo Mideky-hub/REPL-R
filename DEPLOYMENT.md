@@ -9,8 +9,8 @@ This repository contains the Next.js app in the `repl-ay-app/` subdirectory. Ver
 - Build Command: (auto) `next build`
 - Install Command: (auto) `npm install`
 - Output Directory: (auto)
-- Node.js Version: 20
-- Serverless Functions Runtime: Node.js 20
+- Node.js Version: 20 (Project Settings)
+- Functions runtime: auto-selected by Vercel (do not set `runtime` in vercel.json)
 
 There is a `vercel.json` inside `repl-ay-app/` that configures the runtime and limits for App Router API routes (`app/api/**/route.*`).
 
