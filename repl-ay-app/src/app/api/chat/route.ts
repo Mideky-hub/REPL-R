@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+// Next.js App Router: set per-route runtime limits (Vercel will honor these during deployment)
+export const maxDuration = 20; // seconds
 import UserService from '@/lib/UserService';
 import ModelManager from '@/lib/ModelManager';
 import { DEFAULT_MODEL } from '@/lib/aiModels';
