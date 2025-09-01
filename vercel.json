@@ -2,13 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "functions": {
-    "repl-ay-app/app/api/**/route.js": {
-      "runtime": "nodejs20.x",
+    "app/api/**/route.js": {
       "maxDuration": 20,
       "memory": 1024
     },
-    "repl-ay-app/app/api/**/route.ts": {
-      "runtime": "nodejs20.x",
+    "app/api/**/route.ts": {
       "maxDuration": 20,
       "memory": 1024
     }
